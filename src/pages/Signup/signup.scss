@@ -1,0 +1,45 @@
+.signuppage {
+    .terms {
+        color: #3B8BCF;
+        text-decoration: underline;
+    }
+
+    .terms:hover {
+        cursor: pointer;
+        background-color: rgb(193, 193, 229);
+    }
+
+    .crossicon {
+        background-color: #d3d2d2;
+        padding: 5px;
+        border-radius: 50%;
+        color: black;
+    }
+
+    .crossicon:hover {
+        cursor: pointer;
+        opacity: 0.8;
+    }
+
+
+    .circle {
+        background: #3B8BCF;
+        height: 4rem;
+        width: 4rem;
+        border-radius: 50%;
+
+        .circleicon {
+            color: white;
+            font-size: 2rem;
+            width: 100%;
+            height: 100%;
+        }
+    }
+
+
+    @media screen and (max-width: 1150px) {
+        .signupcard {
+            width: 100% !important;
+        }
+      }
+}

@@ -1,0 +1,137 @@
+.sidebar {
+    border-radius: 35px;
+    position: fixed;
+    top: 24px;
+    bottom: 0;
+    left: 25px;
+    // width: 270px;
+    background-color: #f8f9fa;
+    z-index: 1000;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+    .show {
+        height: 100vh;
+    }
+
+    .navbtns {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        // height: 95%;
+    }
+
+    .logoutbtn {
+        color: #0000bb !important;
+
+    }
+
+    @media (max-height: 588px) {
+        .navbtns {
+            height: 10% !important;
+        }
+    }
+
+
+    .list-group-item {
+        margin-bottom: 2px;
+        /* Space between items */
+        font-size: 1rem;
+        color: hsl(210, 10%, 23%);
+        display: flex;
+        align-items: center;
+        transition: background-color 0.3s;
+        gap: 10px;
+
+        &:hover {
+
+            background-color: #f1f1f1;
+
+        }
+
+        i {
+            margin-right: 15px;
+            /* Space between icon and text */
+            font-size: 20px;
+        }
+    }
+}
+
+.collapse-content {
+    height: 93% !important;
+}
+
+@media (max-width: 992px) {
+    .sidebar {
+        width: 100%;
+        position: static;
+        /* Stack it above main content */
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 992px) {
+    .sidebar {
+        width: 100%;
+    }
+}
+
+
+
+
+// ziada sy ziada max 
+// kam sy kam min
+  @media (min-width: 992px) {
+    .toggle-sidebar-btn{
+        display: none;
+    }
+  }
+
+@media (max-width: 992px) {
+    .toggle-sidebar-btn {
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        color: rgb(0, 0, 0);
+        padding: 10px;
+        border-radius: 50%;
+        z-index: 1050;
+        cursor: pointer;
+    }
+
+    .sidebar {
+        position: absolute;
+        width: 260px;
+        left: -250px;
+        /* Hide sidebar initially */
+        transition: all 0.3s ease-in-out;
+        border-radius: 0%
+    }
+
+    .sidebar.show {
+        left: 0;
+        /* Slide in when toggled */
+    }
+
+    .main-content {
+        margin-left: 0;
+        /* No margin on small screens */
+    }
+}
+
+.sidebar .list-group-item.active {
+  background: linear-gradient(90deg, #3B8BD0 0%, #2548C2 100%);
+  color: white;
+  font-weight: bold;
+}
+
+.sidebar .list-group-item.active i {
+  color: white;
+}
+
+/* Hover Effect for Better UX */
+.sidebar .list-group-item:hover {
+  background-color: #e9ecef;
+}

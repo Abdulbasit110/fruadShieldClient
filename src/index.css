@@ -1,0 +1,29 @@
+body {
+  margin: 0;
+  font-family: Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+}
+
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+.app-container {
+  display: flex;
+  height: 100vh;
+  background-color: #f0f0f0;
+}
+
+
+
+.main-content {
+  flex: 1;
+ margin-left: 280px;    /*Matches sidebar width */
+  padding: 20px;
+  overflow-y: auto;
+}
+
