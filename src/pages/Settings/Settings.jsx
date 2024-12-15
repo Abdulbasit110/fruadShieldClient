@@ -56,10 +56,15 @@ const Settings = () => {
 
   const [selectedRole, setSelectedRole] = useState("");
   const [isCheckboxChecked, setIsCheckboxChecked] = useState(false);
+  const [selectedEmail, setSelectedEmail] = useState("");
 
   const handleRoleChange = (event) => {
     setSelectedRole(event.target.value);
   };
+  const handleEmailChange = (event) => {
+    setSelectedEmail(event.target.value);
+  };
+
 
   const handleCheckboxChange = (event) => {
     setIsCheckboxChecked(event.target.checked);
@@ -312,6 +317,24 @@ const Settings = () => {
                         <option value="1">User</option>
                         <option value="2">Admin</option>
                       </Form.Select>
+                    </Card.Body>
+                  </div>
+                </Col>
+                <Col sm={6} md={3} lg={3} className="mb-1">
+                  <div className="h-100">
+                    <Card.Body>
+                      <Form.Label>Email Address</Form.Label>
+                      <InputGroup className="mb-1">
+                        <Form.Control
+                          placeholder="Enter Email"
+                          aria-label="Enter Email"
+                          aria-describedby="basic-addon2"
+                          value={selectedEmail}
+                          onChange={handleEmailChange}
+                          style={{paddingTop: "1.2rem !important",
+                            paddingBottom: "1.2rem !important"}}
+                        />
+                      </InputGroup>
                     </Card.Body>
                   </div>
                 </Col>

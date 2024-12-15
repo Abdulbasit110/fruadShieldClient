@@ -54,6 +54,12 @@
             font-size: 20px;
         }
     }
+
+    .border-0{
+        &:hover{
+            cursor: pointer;
+        }
+    }
 }
 
 .collapse-content {

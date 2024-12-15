@@ -10,6 +10,12 @@
         opacity: 0.6;
     }
 
+    .forgot{
+        &:hover{
+            cursor: pointer;
+        }
+    }
+
     @media screen and (max-width: 1150px) {
         .logincard {
             width: 100% !important;

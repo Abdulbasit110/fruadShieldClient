@@ -649,21 +649,6 @@ const Management = () => {
                   <Col sm={6} md={3} lg={3} className="mb-1">
                     <div className="h-100">
                       <Card.Body>
-                        {/* <Form.Label className="mt-3">Phone Number</Form.Label>
-                        <InputGroup className="mb-1">
-                          <Form.Control
-                            style={{
-                              paddingTop: "1.5rem",
-                              paddingBottom: "1.5rem",
-                              borderRadius: "14px"
-                            }}
-                            className="inputgrp"
-                            placeholder=""
-                            aria-label=""
-                            aria-describedby="basic-addon2"
-                            value={editUser.mobileNumber}
-                          />
-                        </InputGroup> */}
                         <Form.Label>Role</Form.Label>
                         <Form.Select aria-label="Default select example" style={{
                           paddingTop: ".8rem",
@@ -671,12 +656,34 @@ const Management = () => {
                           borderRadius: "14px"
                         }}>
                           {/* {editUser.role} */}
-                          <option value="">{editUser.role}</option>
-                          {/* <option value="2">{editUser.role == "User" : 'Admin '} Admin</option> */}
+                          <option value="Admin" selected={editUser.role === "Admin"}>Admin</option>
+                          <option value="User" selected={editUser.role === "User"}>
+                            User
+                          </option>
+                        </Form.Select>
+
+
+                      </Card.Body>
+                    </div>
+                  </Col>
+                  <Col sm={6} md={3} lg={3} className="mb-1">
+                    <div className="h-100">
+                      <Card.Body>
+                        <Form.Label>Status</Form.Label>
+                        <Form.Select aria-label="Default select example" style={{
+                          paddingTop: ".8rem",
+                          paddingBottom: ".8rem",
+                          borderRadius: "14px"
+                        }}>
+                           <option value="Active" selected={editUser.status === "Active"}>Active</option>
+                          <option value="Inactive" selected={editUser.status === "Inactive"}>
+                            Inactive
+                          </option>
                         </Form.Select>
                       </Card.Body>
                     </div>
                   </Col>
+
 
                 </Row>
 
@@ -703,50 +710,50 @@ const Management = () => {
 
             {/* Modal */}
             <MDBModal tabIndex='-1' open={updateModal} onClose={toggleUpdate}>
-        <MDBModalDialog centered>
-          <MDBModalContent>
-            <MDBModalBody>
-              <div style={{ float: "right" }}>
-                <span className='crossicon' onClick={toggleUpdate}>
-                  <RxCross2 style={{ marginBottom: "1px" }} />
-                </span>
-              </div>
+              <MDBModalDialog centered>
+                <MDBModalContent>
+                  <MDBModalBody>
+                    <div style={{ float: "right" }}>
+                      <span className='crossicon' onClick={toggleUpdate}>
+                        <RxCross2 style={{ marginBottom: "1px" }} />
+                      </span>
+                    </div>
 
-              <div style={{
-                display: "flex",
-                justifyContent: "center",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: "0.3rem",
-                marginTop: "2rem"
-              }}>
-                <span className='circle'>
-                  <FaRegCheckCircle className='circleicon' />
-                </span>
+                    <div style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: "0.3rem",
+                      marginTop: "2rem"
+                    }}>
+                      <span className='circle'>
+                        <FaRegCheckCircle className='circleicon' />
+                      </span>
 
-                <h4 className='mt-2' style={{ color: "black" }}>Successfully!</h4>
+                      <h4 className='mt-2' style={{ color: "black" }}>Successfully!</h4>
 
-                <h6 style={{ color: "black", fontWeight: "400" }}>You have successfully created an account</h6>
+                      <h6 style={{ color: "black", fontWeight: "400" }}>You have successfully created an account</h6>
 
-                <MDBBtn
-                  className="mb-4 px-5 mt-3"
-                  size='lg'
-                  style={{
-                    background: 'linear-gradient(90deg, #3B8BD0 0%, #2548C2 100%)',
-                    color: '#fff',
-                    borderRadius: '8px',
-                    fontWeight: '600',
-                    width: "60%"
-                  }}
-                  onClick={handleViewBack}
-                >
-                  Continue
-                </MDBBtn>
-              </div>
-            </MDBModalBody>
-          </MDBModalContent>
-        </MDBModalDialog>
-      </MDBModal>
+                      <MDBBtn
+                        className="mb-4 px-5 mt-3"
+                        size='lg'
+                        style={{
+                          background: 'linear-gradient(90deg, #3B8BD0 0%, #2548C2 100%)',
+                          color: '#fff',
+                          borderRadius: '8px',
+                          fontWeight: '600',
+                          width: "60%"
+                        }}
+                        onClick={handleViewBack}
+                      >
+                        Continue
+                      </MDBBtn>
+                    </div>
+                  </MDBModalBody>
+                </MDBModalContent>
+              </MDBModalDialog>
+            </MDBModal>
           </div>
         </>
       )}

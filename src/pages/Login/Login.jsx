@@ -120,6 +120,7 @@ const Login = () => {
                                     marginBottom: "20px",
                                     fontSize: "15px"
                                 }}
+                                className="forgot"
                                 onClick={handleForgotPassword} // Add click handler for forgot password
                                 
                             >
