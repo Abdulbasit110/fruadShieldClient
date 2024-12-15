@@ -167,7 +167,11 @@ const Settings = () => {
                       paddingBottom: ".8rem",
                       borderRadius: "14px"
                     }}>
-                      <option value="">Select Spiking Duration</option>
+                      <option value=""disabled>Select Spiking Duration</option> 
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
                       {/* <option value="2">{editUser.role == "User" : 'Admin '} Admin</option> */}
                     </Form.Select>
                   </Card.Body>

@@ -331,7 +331,7 @@ const Insights = () => {
                   </div>  
                   <div>
                     <h6 style={{ color: "black", marginBottom: "2px !important" }}>[45116.76, 33662.93, 33611.93, 33272.86, 313300...]</h6>
-                    <p className="small mb-0">Five Highest Volume  of Transactio n Journey</p>
+                    <p className="small mb-0">Five Highest Volume  of Transaction Journey</p>
                   </div>
               </Card.Body>
             </Card>
