@@ -125,7 +125,7 @@ const Insights = () => {
               <MDBTableHead>
                 <tr>
                   <th scope="col">Sr. No</th>
-                  <th scope="col">Agent Recode</th>
+                  <th scope="col">Agent Repcode</th>
                   <th scope="col">Total Trx</th>
                   <th scope="col">Total Beneficiaries</th>
                   <th scope="col">Total Paid out Trx</th>
@@ -208,7 +208,7 @@ const Insights = () => {
                       </div>
                       <div>
                         <h6 style={{ color: "black",marginBottom: "2px !important" }}>{selectedTransaction.totalTrx}</h6>
-                        <p className="small mb-0">Total Beneficiaries</p>
+                        <p className="small mb-0">Total Transaction</p>
 
                       </div>
                     </Card.Body>

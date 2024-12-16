@@ -321,7 +321,7 @@ const Settings = () => {
                   </div>
                 </Col>
                 <Col sm={6} md={3} lg={3} className="mb-1">
-                  <div className="h-100">
+                  <div className="h-100 email">
                     <Card.Body>
                       <Form.Label>Email Address</Form.Label>
                       <InputGroup className="mb-1">
@@ -331,8 +331,7 @@ const Settings = () => {
                           aria-describedby="basic-addon2"
                           value={selectedEmail}
                           onChange={handleEmailChange}
-                          style={{paddingTop: "1.2rem !important",
-                            paddingBottom: "1.2rem !important"}}
+                          
                         />
                       </InputGroup>
                     </Card.Body>
