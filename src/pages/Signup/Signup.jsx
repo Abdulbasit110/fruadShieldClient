@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   MDBBtn,
   MDBContainer,
@@ -12,195 +12,331 @@ import {
   MDBModalDialog,
   MDBModalContent,
   MDBModalBody,
-} from 'mdb-react-ui-kit';
+  MDBCheckbox,
+  MDBSpinner,
+} from "mdb-react-ui-kit";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import './signup.scss';
+import "./signup.scss";
 import { RxCross2 } from "react-icons/rx";
 import { FaRegCheckCircle } from "react-icons/fa";
-import Checkbox from '@mui/material/Checkbox';
-import { useNavigate } from 'react-router-dom';
+import Checkbox from "@mui/material/Checkbox";
+import { useNavigate } from "react-router-dom";
+import { authService } from "../../api/services";
+import useApi from "../../hooks/useApi";
+import { toast } from "react-toastify";
 
 const Signup = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
-  const [cpassword, setConfirmPassword] = useState('');
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    agreeTerms: false,
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [basicModal, setBasicModal] = useState(false);
-  const [termsAccepted, setTermsAccepted] = useState(false);
 
   const navigate = useNavigate();
 
+  // Use API hook for registration
+  const {
+    loading,
+    error,
+    execute: executeRegistration,
+  } = useApi(authService.register, {
+    showSuccessToast: true,
+    successMessage: "Registration successful! Please log in.",
+    onSuccess: () => {
+      // Redirect to login page after successful registration
+      setTimeout(() => {
+        navigate("/login");
+      }, 1500);
+    },
+  });
+
   const toggleOpen = () => setBasicModal(!basicModal);
-  const isButtonDisabled = !name || !email || !password || !cpassword || !termsAccepted;
 
-  const handleCreateAccount = () => {
-    toggleOpen(); // Open the modal
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData({
+      ...formData,
+      [name]: type === "checkbox" ? checked : value,
+    });
   };
 
-  const handleContinue = () => {
-    navigate('/app/dashboard'); // Navigate to the dashboard
+  const validateForm = () => {
+    if (!formData.firstName.trim()) {
+      toast.error("First name is required");
+      return false;
+    }
+    if (!formData.lastName.trim()) {
+      toast.error("Last name is required");
+      return false;
+    }
+    if (!formData.email.trim()) {
+      toast.error("Email is required");
+      return false;
+    }
+    if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      toast.error("Email is invalid");
+      return false;
+    }
+    if (!formData.password) {
+      toast.error("Password is required");
+      return false;
+    }
+    if (formData.password.length < 8) {
+      toast.error("Password must be at least 8 characters");
+      return false;
+    }
+    if (formData.password !== formData.confirmPassword) {
+      toast.error("Passwords do not match");
+      return false;
+    }
+    if (!formData.agreeTerms) {
+      toast.error("You must agree to the terms and conditions");
+      return false;
+    }
+    return true;
   };
 
-  const handleLogin = () => {
-    navigate('/'); // Navigate to the login page
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
+    try {
+      // Prepare registration data
+      const registrationData = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        password: formData.password,
+      };
+
+      await executeRegistration(registrationData);
+    } catch (err) {
+      // Error is handled by useApi hook
+      console.error("Registration error:", err);
+    }
+  };
+
+  const isButtonDisabled =
+    loading ||
+    !formData.firstName ||
+    !formData.lastName ||
+    !formData.email ||
+    !formData.password ||
+    !formData.confirmPassword ||
+    !formData.agreeTerms;
+
+  const handleBackToLogin = () => {
+    navigate("/login");
   };
 
   return (
-    <div className='signuppage'>
+    <div className="signuppage">
       <MDBContainer className="my-5">
-        <MDBCard style={{ width: "60%", margin: "0px auto" }} className='signupcard'>
-          <MDBRow className='g-0'>
-            <MDBCol md='6'>
-              <MDBCardImage src='/side_register.png' alt="login form" className='rounded-start w-100' style={{ height: "100%" }} />
+        <MDBCard style={{ width: "75%", margin: "40px auto" }}>
+          <MDBRow className="g-0">
+            <MDBCol md="5">
+              <MDBCardImage
+                src="/side_register.png"
+                alt="signup form"
+                className="rounded-start w-100"
+                style={{ height: "100%" }}
+              />
             </MDBCol>
-            <MDBCol md='6'>
-              <MDBCardBody className='d-flex flex-column'>
+
+            <MDBCol md="7">
+              <MDBCardBody className="d-flex flex-column">
                 <div className="text-center">
-                  <img src="/logo.png" style={{ width: '88px' }} alt="logo" />
-                  <h5 className="mt-2 mb-5 pb-1">Sign Up</h5>
+                  <img src="/logo.png" style={{ width: "88px" }} alt="logo" />
+                  <h5 className="mt-2 mb-4">Create an Account</h5>
                 </div>
 
-                <MDBInput
-                  wrapperClass='mb-4'
-                  label='Name'
-                  id='formControlLg'
-                  type='text'
-                  size="lg"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
+                {error && (
+                  <div className="alert alert-danger mb-3">
+                    {error.message || "Registration failed. Please try again."}
+                  </div>
+                )}
 
-                <MDBInput
-                  wrapperClass='mb-4'
-                  label='Email address'
-                  id='formControlLg'
-                  type='email'
-                  size="lg"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
+                <form onSubmit={handleSubmit}>
+                  <div className="row">
+                    <div className="col-md-6 mb-4">
+                      <MDBInput
+                        label="First name"
+                        name="firstName"
+                        type="text"
+                        size="lg"
+                        value={formData.firstName}
+                        onChange={handleChange}
+                      />
+                    </div>
+                    <div className="col-md-6 mb-4">
+                      <MDBInput
+                        label="Last name"
+                        name="lastName"
+                        type="text"
+                        size="lg"
+                        value={formData.lastName}
+                        onChange={handleChange}
+                      />
+                    </div>
+                  </div>
 
-                <div className="mb-4 position-relative">
                   <MDBInput
-                    label='Password'
-                    type={showPassword ? 'text' : 'password'}
+                    wrapperClass="mb-4"
+                    label="Email address"
+                    name="email"
+                    type="email"
                     size="lg"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    value={formData.email}
+                    onChange={handleChange}
                   />
-                  <span
-                    className="position-absolute top-50 translate-middle-y end-0 me-3"
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? <FaEyeSlash /> : <FaEye />}
-                  </span>
-                </div>
 
-                <div className="mb-2 position-relative">
-                  <MDBInput
-                    label='Confirm Password'
-                    type={showConfirmPassword ? 'text' : 'password'}
+                  <div className="mb-4 position-relative">
+                    <MDBInput
+                      label="Password"
+                      name="password"
+                      type={showPassword ? "text" : "password"}
+                      size="lg"
+                      value={formData.password}
+                      onChange={handleChange}
+                    />
+                    <span
+                      className="position-absolute top-50 translate-middle-y end-0 me-3"
+                      style={{ cursor: "pointer" }}
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <FaEyeSlash /> : <FaEye />}
+                    </span>
+                  </div>
+
+                  <div className="mb-4 position-relative">
+                    <MDBInput
+                      label="Confirm Password"
+                      name="confirmPassword"
+                      type={showConfirmPassword ? "text" : "password"}
+                      size="lg"
+                      value={formData.confirmPassword}
+                      onChange={handleChange}
+                    />
+                    <span
+                      className="position-absolute top-50 translate-middle-y end-0 me-3"
+                      style={{ cursor: "pointer" }}
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
+                    >
+                      {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                    </span>
+                  </div>
+
+                  <div className="mb-4">
+                    <MDBCheckbox
+                      name="agreeTerms"
+                      id="agreeTerms"
+                      label="I agree to the terms and conditions"
+                      checked={formData.agreeTerms}
+                      onChange={handleChange}
+                    />
+                  </div>
+
+                  <MDBBtn
+                    type="submit"
+                    className="mb-4"
                     size="lg"
-                    value={cpassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                  />
-                  <span
-                    className="position-absolute top-50 translate-middle-y end-0 me-3"
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  >
-                    {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
-                  </span>
-                </div>
-
-                <div className='mb-3 d-flex'>
-                  <Checkbox
-                    size="small"
-                    checked={termsAccepted}
-                    onChange={(e) => setTermsAccepted(e.target.checked)}
+                    disabled={isButtonDisabled}
                     style={{
-                      marginTop: "-15px",
-                      marginRight: "4px",
-                      padding: "0px"
+                      background:
+                        "linear-gradient(90deg, #3B8BD0 0%, #2548C2 100%)",
+                      color: "#fff",
+                      borderRadius: "8px",
+                      fontWeight: "600",
+                      width: "100%",
                     }}
-                  />
-                  <p style={{ fontSize: "14px" }}>I Agree to the <span className='terms'>Terms & Conditions</span></p>
-                </div>
-
-                <MDBBtn
-                  className="mb-4 px-5"
-                  size='lg'
-                  disabled={isButtonDisabled}
-                  style={{
-                    background: isButtonDisabled
-                      ? 'linear-gradient(90deg, #3B8BD0 0%, #2548C2 100%)'
-                      : 'linear-gradient(90deg, #3B8BD0 0%, #2548C2 100%)',
-                    color: '#fff',
-                    borderRadius: '8px',
-                    fontWeight: '600'
-                  }}
-                  onClick={handleCreateAccount}
-                >
-                  Create Account
-                </MDBBtn>
-
-                <p className="mb-5 pb-lg-2 text-center" style={{ color: '#393f81' }}>
-                  Already have an account?{' '}
-                  <span
-                    style={{ color: '#3B8BCF', cursor: 'pointer' }}
-                    onClick={handleLogin}
                   >
-                    Login here
-                  </span>
-                </p>
+                    {loading ? (
+                      <MDBSpinner
+                        size="sm"
+                        role="status"
+                        tag="span"
+                        className="me-2"
+                      />
+                    ) : (
+                      "Sign Up"
+                    )}
+                  </MDBBtn>
+                </form>
+
+                <div className="text-center">
+                  <p className="mb-0">
+                    Already have an account?{" "}
+                    <a
+                      onClick={handleBackToLogin}
+                      style={{ color: "#3B8BCF", cursor: "pointer" }}
+                    >
+                      Login
+                    </a>
+                  </p>
+                </div>
               </MDBCardBody>
             </MDBCol>
           </MDBRow>
         </MDBCard>
       </MDBContainer>
 
-      <MDBModal tabIndex='-1' open={basicModal} onClose={toggleOpen}>
+      <MDBModal tabIndex="-1" open={basicModal} onClose={toggleOpen}>
         <MDBModalDialog centered>
           <MDBModalContent>
             <MDBModalBody>
               <div style={{ float: "right" }}>
-                <span className='crossicon' onClick={toggleOpen}>
+                <span className="crossicon" onClick={toggleOpen}>
                   <RxCross2 style={{ marginBottom: "1px" }} />
                 </span>
               </div>
 
-              <div style={{
-                display: "flex",
-                justifyContent: "center",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: "0.3rem",
-                marginTop: "2rem"
-              }}>
-                <span className='circle'>
-                  <FaRegCheckCircle className='circleicon' />
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: "0.3rem",
+                  marginTop: "2rem",
+                }}
+              >
+                <span className="circle">
+                  <FaRegCheckCircle className="circleicon" />
                 </span>
 
-                <h3 className='mt-2' style={{ color: "black" }}>Successfully</h3>
+                <h3 className="mt-2" style={{ color: "black" }}>
+                  Successfully
+                </h3>
 
-                <h6 style={{ color: "black", fontWeight: "400" }}>You have successfully created an account</h6>
+                <h6 style={{ color: "black", fontWeight: "400" }}>
+                  You have successfully created an account
+                </h6>
 
                 <MDBBtn
                   className="mb-4 px-5 mt-3"
-                  size='lg'
+                  size="lg"
                   style={{
-                    background: 'linear-gradient(90deg, #3B8BD0 0%, #2548C2 100%)',
-                    color: '#fff',
-                    borderRadius: '8px',
-                    fontWeight: '600',
-                    width: "60%"
+                    background:
+                      "linear-gradient(90deg, #3B8BD0 0%, #2548C2 100%)",
+                    color: "#fff",
+                    borderRadius: "8px",
+                    fontWeight: "600",
+                    width: "60%",
                   }}
-                  onClick={handleContinue}
+                  onClick={toggleOpen}
                 >
-                  Continue
+                  Close
                 </MDBBtn>
               </div>
             </MDBModalBody>
