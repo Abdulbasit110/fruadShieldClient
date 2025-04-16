@@ -8,7 +8,7 @@
 // Auth endpoints
 const AUTH = {
   LOGIN: "/auth/login",
-  REGISTER: "/auth/register",
+  REGISTER: "/auth/signup",
   REFRESH_TOKEN: "/auth/refresh-token",
   FORGOT_PASSWORD: "/auth/forgot-password",
   RESET_PASSWORD: "/auth/reset-password",

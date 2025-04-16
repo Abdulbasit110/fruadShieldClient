@@ -80,29 +80,6 @@ const Login = () => {
           </MDBCol>
 
           <MDBCol md="6">
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "flex-end",
-                margin: "10px",
-              }}
-            >
-              <MDBBtn
-                style={{
-                  boxShadow: "none",
-                  background: "#ededed",
-                  color: "black",
-                  fontWeight: "400",
-                  textTransform: "none",
-                }}
-              >
-                Admin Portal{" "}
-                <span>
-                  <IoIosArrowDown />
-                </span>
-              </MDBBtn>
-            </div>
-
             <MDBCardBody className="d-flex flex-column">
               <div className="text-center">
                 <img src="/logo.png" style={{ width: "88px" }} alt="logo" />
