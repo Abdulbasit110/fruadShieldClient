@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./dashboard.scss";
 import { CiCreditCard1 } from "react-icons/ci";
 import { GrGroup } from "react-icons/gr";
@@ -6,10 +6,15 @@ import { FaRegArrowAltCircleRight } from "react-icons/fa";
 import { IoArrowForwardCircleOutline } from "react-icons/io5";
 import { Line } from "react-chartjs-2";
 import { Doughnut } from "react-chartjs-2";
-import { MDBBadge, MDBTable, MDBTableHead, MDBTableBody } from 'mdb-react-ui-kit';
+import {
+  MDBBadge,
+  MDBTable,
+  MDBTableHead,
+  MDBTableBody,
+} from "mdb-react-ui-kit";
 import { GoDotFill } from "react-icons/go";
-import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
-
+import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
+import { authService } from "../../api/services";
 
 import {
   Chart as ChartJS,
@@ -39,7 +44,20 @@ ChartJS.register(
 
 // Data for the Line Chart (Fraudulent Transaction Details)
 const lineData = {
-  labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+  labels: [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ],
   datasets: [
     {
       label: "Fraudulent Transactions",
@@ -102,18 +120,49 @@ const transactions = Array.from({ length: 50 }, (_, index) => {
     mobileNumber: `+92 303 45${(67890 + index).toString().slice(-5)}`,
     amount: `PKR ${(Math.random() * 1000000 + 100000).toFixed(2)}`,
     status: isFraudulent ? "Fraudulent" : "Genuine",
-    date: new Date(2024, 1, Math.floor(Math.random() * 28) + 1).toLocaleDateString("en-GB"),
+    date: new Date(
+      2024,
+      1,
+      Math.floor(Math.random() * 28) + 1
+    ).toLocaleDateString("en-GB"),
   };
 });
 
 const Dashboard = () => {
+  const [userData, setUserData] = useState({
+    name: "Loading...",
+    role: "User",
+    email: "",
+  });
+
+  useEffect(() => {
+    // Get user data from localStorage
+    const user = authService.getCurrentUser();
+
+    if (user) {
+      // Extract the name from email or use firstName/lastName if available
+      const name =
+        user.firstName && user.lastName
+          ? `${user.firstName} ${user.lastName}`
+          : user.email
+          ? user.email.split("@")[0]
+          : "User";
+
+      setUserData({
+        name: name,
+        role: user.role || "User",
+        email: user.email || "",
+      });
+    }
+  }, []);
+
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
         <div className="user-info">
           <div className="user-text">
-            <span className="user-name">John Deo</span>
-            <span className="user-role">Admin</span>
+            <span className="user-name">{userData.name}</span>
+            <span className="user-role">{userData.role}</span>
           </div>
           <img
             src="/user.png" // Replace with the actual user avatar URL
@@ -122,7 +171,7 @@ const Dashboard = () => {
           />
         </div>
       </div>
-      <h3 style={{color: "black"}}>Dashboard</h3>
+      <h3 style={{ color: "black" }}>Dashboard</h3>
 
       {/* Statistic Boxes */}
       <div className="statistic-boxes">
@@ -165,27 +214,39 @@ const Dashboard = () => {
         {/* Line Chart */}
         <div className="chart-container-1">
           <h4>Fraudulent Transaction Details</h4>
-          <Line key={JSON.stringify(lineData)} data={lineData} options={lineOptions} />
+          <Line
+            key={JSON.stringify(lineData)}
+            data={lineData}
+            options={lineOptions}
+          />
         </div>
 
         <div className="chart-container-2">
           <h4>Total Transaction</h4>
-          <Doughnut key={JSON.stringify(doughnutData)} data={doughnutData} options={doughnutOptions} />
+          <Doughnut
+            key={JSON.stringify(doughnutData)}
+            data={doughnutData}
+            options={doughnutOptions}
+          />
         </div>
       </div>
 
       {/* Table */}
       <div className="tablebox">
-        <div style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center"
-        }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
           <h4>Recent Transaction Details</h4>
           <div>
-
-            <select name="Month" id="Month" style={{padding: "5px 8px",
-    fontSize: "14px"}}>
+            <select
+              name="Month"
+              id="Month"
+              style={{ padding: "5px 8px", fontSize: "14px" }}
+            >
               <option value="">February 2024</option>
               <option value="saab">March</option>
               <option value="mercedes">September</option>
@@ -195,15 +256,15 @@ const Dashboard = () => {
         </div>
 
         <div className="table-container">
-          <MDBTable align='middle' className="dashboardtable">
+          <MDBTable align="middle" className="dashboardtable">
             <MDBTableHead>
               <tr>
-                <th scope='col'>Transaction ID</th>
-                <th scope='col'>Sender Name</th>
-                <th scope='col'>Mobile Number</th>
-                <th scope='col'>Amount</th>
-                <th scope='col'>Date</th>
-                <th scope='col'>Status</th>
+                <th scope="col">Transaction ID</th>
+                <th scope="col">Sender Name</th>
+                <th scope="col">Mobile Number</th>
+                <th scope="col">Amount</th>
+                <th scope="col">Date</th>
+                <th scope="col">Status</th>
               </tr>
             </MDBTableHead>
             <MDBTableBody>
@@ -241,7 +302,6 @@ const Dashboard = () => {
                       </MDBBadge>
                     )}
                   </td>
-                  
                 </tr>
               ))}
             </MDBTableBody>
