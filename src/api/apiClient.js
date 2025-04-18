@@ -82,9 +82,15 @@ const apiClient = {
   post: async (endpoint, data = {}, customHeaders = {}) => {
     const { controller, timeout } = createControllerWithTimeout();
     try {
+      const headers = {
+        ...getAuthHeaders(),
+        ...customHeaders,
+        "Content-Type": "application/json",
+      };
+
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: "POST",
-        headers: { ...getAuthHeaders(), ...customHeaders },
+        headers,
         body: JSON.stringify(data),
         signal: controller.signal,
       });

@@ -11,6 +11,7 @@ const AUTH = {
   REGISTER: "/auth/signup",
   REFRESH_TOKEN: "/auth/refresh-token",
   FORGOT_PASSWORD: "/auth/forgot-password",
+  VERIFY_TOKEN: "/auth/verify-code",
   RESET_PASSWORD: "/auth/reset-password",
 };
 

@@ -20,11 +20,13 @@ const Forgetpassword = () => {
   } = useApi(authService.forgotPassword, {
     showSuccessToast: true,
     successMessage: "Password reset link sent to your email",
-    onSuccess: () => {
-      // Navigate to verification page after a slight delay
-      setTimeout(() => {
-        navigate("/verification");
-      }, 1500);
+    onSuccess: (response) => {
+      // Save email for verification
+      localStorage.setItem("resetEmail", email);
+      sessionStorage.setItem("resetEmail", email);
+
+      // Navigate using React Router
+      navigate("/verification", { state: { email } });
     },
   });
 
@@ -47,8 +49,14 @@ const Forgetpassword = () => {
     }
 
     try {
-      await executeForgotPassword({ email });
-      // Navigation is handled in onSuccess callback
+      const response = await executeForgotPassword({ email });
+
+      // Manual navigation with a direct approach if needed
+      if (response) {
+        localStorage.setItem("resetEmail", email);
+        sessionStorage.setItem("resetEmail", email);
+        // The onSuccess callback should handle navigation
+      }
     } catch (err) {
       // Error is already handled by useApi hook
       console.error("Forgot password error:", err);

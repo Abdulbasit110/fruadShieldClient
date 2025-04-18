@@ -108,15 +108,85 @@ const authService = {
   },
 
   /**
+   * Verify code sent during password reset process
+   * @param {Object} data - Verification data
+   * @param {string} data.email - User email
+   * @param {string} data.verificationCode - Verification code
+   * @returns {Promise<Object>} Success message
+   */
+  verifyCode: async (data) => {
+    try {
+      return await apiClient.post(routes.AUTH.VERIFY_TOKEN, data);
+    } catch (error) {
+      console.error("Code verification error:", error);
+      throw error;
+    }
+  },
+
+  /**
    * Reset user password with token
    * @param {Object} data - Password reset data
-   * @param {string} data.token - Reset token
-   * @param {string} data.password - New password
+   * @param {string} data.email - User email
+   * @param {string} data.code - Verification code
+   * @param {string} data.new_password - New password
+   * @param {string} data.old_password - Current password for additional security
+   * @param {string} data.token - Reset token (optional, will check localStorage if not provided)
    * @returns {Promise<Object>} Success message
    */
   resetPassword: async (data) => {
     try {
-      return await apiClient.post(routes.AUTH.RESET_PASSWORD, data);
+      // Extract token and remove from payload
+      const { token, ...resetData } = data;
+
+      // Get token from params, localStorage or sessionStorage
+      const resetToken =
+        token ||
+        localStorage.getItem("resetToken") ||
+        sessionStorage.getItem("resetToken");
+
+      // Custom headers for token authentication
+      const authHeaders = resetToken
+        ? {
+            Authorization: resetToken.startsWith("Bearer ")
+              ? resetToken
+              : `Bearer ${resetToken}`,
+          }
+        : {};
+
+      // For debugging, let's try a simpler approach without custom header formatting
+      if (resetToken) {
+        // Set token directly to localStorage for getAuthHeaders() to pick up
+        const originalToken = localStorage.getItem("authToken");
+        localStorage.setItem("authToken", resetToken);
+
+        try {
+          // Make the API call
+          const result = await apiClient.post(
+            routes.AUTH.RESET_PASSWORD,
+            resetData
+          );
+
+          // Restore original token if there was one
+          if (originalToken) {
+            localStorage.setItem("authToken", originalToken);
+          } else {
+            localStorage.removeItem("authToken");
+          }
+
+          return result;
+        } catch (error) {
+          // Restore original token if there was one
+          if (originalToken) {
+            localStorage.setItem("authToken", originalToken);
+          } else {
+            localStorage.removeItem("authToken");
+          }
+          throw error;
+        }
+      } else {
+        // No token, just make the regular call
+        return await apiClient.post(routes.AUTH.RESET_PASSWORD, resetData);
+      }
     } catch (error) {
       console.error("Reset password error:", error);
       throw error;
