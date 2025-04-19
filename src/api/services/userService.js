@@ -6,6 +6,55 @@ import routes from "../routes";
  */
 const userService = {
   /**
+   * Get all users (for admin panel)
+   * @param {Object} params - Query parameters
+   * @param {number} params.page - Page number
+   * @param {number} params.limit - Items per page
+   * @param {string} params.search - Search query
+   * @returns {Promise<Object>} Users list with pagination
+   */
+  getAllUsers: async (params = {}) => {
+    try {
+      return await apiClient.get(routes.USER.ADMIN_USERS, { params });
+    } catch (error) {
+      console.error("Error fetching all users:", error);
+      throw error;
+    }
+  },
+
+  /**
+   * Update user (for admin)
+   * @param {string} userId - User ID
+   * @param {Object} userData - User data to update
+   * @returns {Promise<Object>} Updated user data
+   */
+  updateUser: async (userId, userData) => {
+    try {
+      return await apiClient.put(
+        routes.USER.ADMIN_UPDATE_USER(userId),
+        userData
+      );
+    } catch (error) {
+      console.error(`Error updating user ${userId}:`, error);
+      throw error;
+    }
+  },
+
+  /**
+   * Invite new user (for admin)
+   * @param {Object} userData - User data with email and role
+   * @returns {Promise<Object>} Success message
+   */
+  inviteUser: async (userData) => {
+    try {
+      return await apiClient.post(routes.USER.ADMIN_INVITE, userData);
+    } catch (error) {
+      console.error("Error inviting user:", error);
+      throw error;
+    }
+  },
+
+  /**
    * Get current user profile
    * @returns {Promise<Object>} User profile
    */
@@ -88,7 +137,7 @@ const userService = {
    */
   getNotifications: async (params = {}) => {
     try {
-      return await apiClient.get(routes.USER.NOTIFICATIONS, params);
+      return await apiClient.get(routes.USER.NOTIFICATIONS, { params });
     } catch (error) {
       console.error("Error fetching notifications:", error);
       throw error;

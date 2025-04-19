@@ -102,6 +102,20 @@ const transactionService = {
   },
 
   /**
+   * Get transactions by date
+   * @param {Object} params - Query parameters
+   * @returns {Promise<Object>} Transactions list
+   */
+  getTransactionsByDate: async (params = {}) => {
+    try {
+      return await apiClient.get(routes.TRANSACTION.BY_DATE, params);
+    } catch (error) {
+      console.error("Error fetching transactions by date:", error);
+      throw error;
+    }
+  },
+
+  /**
    * Flag a transaction as fraudulent
    * @param {string} id - Transaction ID
    * @param {Object} data - Additional data about the fraud
@@ -127,6 +141,19 @@ const transactionService = {
       return await apiClient.post(routes.TRANSACTION.MARK_LEGITIMATE(id), data);
     } catch (error) {
       console.error(`Error marking transaction ${id} as legitimate:`, error);
+      throw error;
+    }
+  },
+
+  /**
+   * Get dashboard statistics
+   * @returns {Promise<Object>} Dashboard statistics including totals and charts data
+   */
+  getDashboardStats: async () => {
+    try {
+      return await apiClient.get(routes.TRANSACTION.STATS);
+    } catch (error) {
+      console.error("Error fetching dashboard statistics:", error);
       throw error;
     }
   },

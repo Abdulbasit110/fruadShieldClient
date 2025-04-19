@@ -17,17 +17,23 @@ const AUTH = {
 
 // User endpoints
 const USER = {
+  BASE: "/users",
   PROFILE: "/users/profile",
   CHANGE_PASSWORD: "/users/password",
   NOTIFICATIONS: "/users/notifications",
   NOTIFICATION_PREFERENCES: "/users/notifications/preferences",
   MARK_ALL_NOTIFICATIONS_READ: "/users/notifications/read-all",
+  ADMIN_USERS: "/auth/users",
+  ADMIN_UPDATE_USER: (userId) => `/auth/approve-user/${userId}`,
+  ADMIN_INVITE: "/users/admin/invite",
 };
 
 // Transaction endpoints
 const TRANSACTION = {
   BASE: "/transactions",
+  BY_DATE: "/transactions/by-date",
   STATS: "/transactions/stats",
+  DASHBOARD_STATS: "/transactions/dashboard-stats",
   USER_TRANSACTIONS: (userId) => `/users/${userId}/transactions`,
   SINGLE: (id) => `/transactions/${id}`,
   FRAUD_SCORE: (id) => `/transactions/${id}/fraud-score`,
