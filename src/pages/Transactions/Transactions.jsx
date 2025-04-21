@@ -1,51 +1,234 @@
-import React, { useState } from "react";
-// import "./dashboard.scss";
+import React, { useState, useEffect } from "react";
 import { CiCreditCard1 } from "react-icons/ci";
 import { GrGroup } from "react-icons/gr";
 import { IoArrowForwardCircleOutline } from "react-icons/io5";
-import { MDBBadge, MDBBtn, MDBTable, MDBTableHead, MDBTableBody, MDBInput } from 'mdb-react-ui-kit';
-import "./transaction.scss"
+import {
+  MDBBadge,
+  MDBBtn,
+  MDBTable,
+  MDBTableHead,
+  MDBTableBody,
+  MDBInput,
+  MDBSpinner,
+} from "mdb-react-ui-kit";
+import "./transaction.scss";
 import { GoDotFill } from "react-icons/go";
 import { VscSettings } from "react-icons/vsc";
 import Pagination from "../../components/Pagination";
-import Form from 'react-bootstrap/Form';
-
-const transactions = Array.from({ length: 50 }, (_, index) => {
-  const isFraudulent = index % 2 === 0; // Alternate between Fraudulent and Genuine
-  return {
-    id: `TXN-20231026-${String(index + 1).padStart(3, "0")}`,
-    // transactionId: `TXN-20231026-${(index + 1).toString().padStart(3, "0")}`,
-    senderClientId: `1234${index + 1}`,
-    senderName: `Sender Name ${index + 1}`,
-    mobileNumber: `+92 303 45${(67890 + index).toString().slice(-5)}`,
-    amount: `PKR ${(Math.random() * 1000000 + 100000).toFixed(2)}`,
-    status: isFraudulent ? "Fraudulent" : "Genuine",
-    date: new Date(2024, 1, Math.floor(Math.random() * 28) + 1).toLocaleDateString("en-GB"),
-  };
-});
-
+import Form from "react-bootstrap/Form";
+import { transactionService } from "../../api/services";
+import { toast } from "react-toastify";
 
 const Transactions = () => {
   const [filter, setFilter] = useState("All");
-  const [isSideBoxOpen, setIsSideBoxOpen] = useState(false);
-  const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState("");
-  
-  const isContinueDisabled = !fromDate || !toDate;
+  const [searchQuery, setSearchQuery] = useState("");
 
-  
-  const toggleSideBox = () => {
-    setIsSideBoxOpen(!isSideBoxOpen);
+  // Add new state variables for API integration
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState({
+    stats: false,
+    transactions: false,
+  });
+  const [dashboardStats, setDashboardStats] = useState({
+    totalTransactions: 0,
+    totalCustomers: 0,
+    highRiskCustomers: 0,
+  });
+
+  // Date range state (matching Dashboard approach)
+  const [dateRange, setDateRange] = useState({
+    startDate: new Date(new Date().getFullYear() - 1, new Date().getMonth(), 1), // Default to 1 year ago
+    endDate: new Date(),
+  });
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+
+  // Format date for API calls (matching Dashboard approach)
+  const formatDate = (date) => {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+      2,
+      "0"
+    )}-${String(date.getDate()).padStart(2, "0")} ${String(
+      date.getHours()
+    ).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}:${String(
+      date.getSeconds()
+    ).padStart(2, "0")}.${String(date.getMilliseconds()).padStart(3, "0")}`;
   };
 
+  // Fetch dashboard stats
+  const fetchDashboardStats = async () => {
+    setLoading((prev) => ({ ...prev, stats: true }));
+    try {
+      const stats = await transactionService.getDashboardStats();
+      console.log("Dashboard stats from API:", stats);
 
+      setDashboardStats({
+        totalTransactions: stats.total_transactions || 0,
+        totalCustomers:
+          stats.total_customers || stats.genuine_transactions || 0,
+        highRiskCustomers:
+          stats.high_risk_customers || stats.suspicious_transactions || 0,
+      });
+    } catch (error) {
+      console.error("Error fetching dashboard stats:", error);
+      toast.error("Failed to load dashboard statistics");
+    } finally {
+      setLoading((prev) => ({ ...prev, stats: false }));
+    }
+  };
 
-  // Filtered transactions based on the button clicked
-  const filteredTransactions =
-    filter === "All"
-      ? transactions
-      : transactions.filter((txn) => txn.status === filter);
+  // Fetch transactions
+  const fetchTransactions = async () => {
+    setLoading((prev) => ({ ...prev, transactions: true }));
+    try {
+      // Format dates to match Dashboard approach
+      const formattedStartDate = formatDate(dateRange.startDate);
+      const formattedEndDate = formatDate(dateRange.endDate);
 
+      console.log("Fetching transactions with date range:", {
+        start_date: formattedStartDate,
+        end_date: formattedEndDate,
+        page: currentPage,
+        limit: pageSize,
+      });
+
+      const response = await transactionService.getTransactionsByDate({
+        start_date: formattedStartDate,
+        end_date: formattedEndDate,
+        page: currentPage,
+        limit: pageSize,
+      });
+
+      processTransactionResponse(response);
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+      toast.error("Failed to load transactions");
+      setTransactions([]);
+    } finally {
+      setLoading((prev) => ({ ...prev, transactions: false }));
+    }
+  };
+
+  // Process transaction response
+  const processTransactionResponse = (response) => {
+    // Check if response is an array directly or contains a transactions property
+    const transactionsData = Array.isArray(response)
+      ? response
+      : response.transactions || [];
+
+    console.log("Transactions from API:", transactionsData);
+
+    // Handle pagination metadata if available
+    if (response.pagination) {
+      setTotalPages(
+        response.pagination.totalPages ||
+          Math.ceil(response.pagination.totalItems / pageSize) ||
+          1
+      );
+    } else if (response.total) {
+      setTotalPages(Math.ceil(response.total / pageSize) || 1);
+    } else {
+      // If no pagination info, estimate from current results
+      setTotalPages(Math.max(1, Math.ceil(transactionsData.length / pageSize)));
+    }
+
+    setTransactions(transactionsData);
+  };
+
+  // Handle date range change
+  const handleStartDateChange = (e) => {
+    setDateRange((prev) => ({
+      ...prev,
+      startDate: new Date(e.target.value),
+    }));
+  };
+
+  const handleEndDateChange = (e) => {
+    setDateRange((prev) => ({
+      ...prev,
+      endDate: new Date(e.target.value),
+    }));
+  };
+
+  // Handle search
+  const handleSearch = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  // Effect to fetch initial data
+  useEffect(() => {
+    fetchDashboardStats();
+    // Note: We don't auto-fetch transactions here,
+    // will be triggered by the effect below or when "Refresh" is clicked
+  }, []);
+
+  // Effect to fetch transactions when page or pageSize changes
+  useEffect(() => {
+    if (dateRange.startDate && dateRange.endDate) {
+      fetchTransactions();
+    }
+  }, [currentPage, pageSize]);
+
+  // Format date for input field
+  const formatDateForInput = (date) => {
+    return date.toISOString().split("T")[0];
+  };
+
+  // Handle pagination
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+  };
+
+  // Handle page size change
+  const handlePageSizeChange = (e) => {
+    const newSize = parseInt(e.target.value);
+    setPageSize(newSize);
+    setCurrentPage(1); // Reset to first page
+  };
+
+  // Filter transactions based on status and search query
+  const getFilteredTransactions = () => {
+    let filtered = [...transactions];
+
+    // First apply status filter
+    if (filter !== "All") {
+      // Map between UI terms and API terms
+      const statusMapping = {
+        Genuine: "Genuine",
+        Fraudulent: "Suspicious", // API uses "Suspicious" instead of "Fraudulent"
+      };
+
+      filtered = filtered.filter((txn) => {
+        const statusDetail =
+          txn.sender_status_detail ||
+          (txn.status && txn.status.includes(statusMapping[filter]));
+        return statusDetail === statusMapping[filter];
+      });
+    }
+
+    // Then apply search query if not empty
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (txn) =>
+          (txn.id && txn.id.toLowerCase().includes(query)) ||
+          (txn.mtn && txn.mtn.toLowerCase().includes(query)) ||
+          (txn.sender_legal_name &&
+            txn.sender_legal_name.toLowerCase().includes(query)) ||
+          (txn.sender_name && txn.sender_name.toLowerCase().includes(query)) ||
+          (txn.sender_mobile &&
+            txn.sender_mobile.toLowerCase().includes(query)) ||
+          (txn.mobile && txn.mobile.toLowerCase().includes(query))
+      );
+    }
+
+    return filtered;
+  };
+
+  const filteredTransactions = getFilteredTransactions();
 
   return (
     <div className="transactions-container">
@@ -55,14 +238,10 @@ const Transactions = () => {
             <span className="user-name">John Deo</span>
             <span className="user-role">Admin</span>
           </div>
-          <img
-            src="/user.png" // Replace with the actual user avatar URL
-            alt="User Avatar"
-            className="user-avatar"
-          />
+          <img src="/user.png" alt="User Avatar" className="user-avatar" />
         </div>
       </div>
-      <h3 style={{color: "black"}}>Customer Transactions</h3>
+      <h3 style={{ color: "black" }}>Customer Transactions</h3>
 
       {/* Statistic Boxes */}
       <div className="statistic-boxes">
@@ -72,7 +251,13 @@ const Transactions = () => {
             <CiCreditCard1 className="crediticon" />
           </div>
           <div className="stat-text">
-            <h2>122</h2>
+            <h2>
+              {loading.stats ? (
+                <MDBSpinner size="sm" />
+              ) : (
+                dashboardStats.totalTransactions
+              )}
+            </h2>
             <span>Total Transaction</span>
           </div>
         </div>
@@ -83,8 +268,14 @@ const Transactions = () => {
             <GrGroup className="peopleicon" />
           </div>
           <div className="stat-text">
-            <h2>122</h2>
-            <span>Total Customers</span>
+            <h2>
+              {loading.stats ? (
+                <MDBSpinner size="sm" />
+              ) : (
+                dashboardStats.totalCustomers
+              )}
+            </h2>
+            <span>Genuine Transactions</span>
           </div>
         </div>
 
@@ -94,28 +285,39 @@ const Transactions = () => {
             <IoArrowForwardCircleOutline className="arrowright" />
           </div>
           <div className="stat-text">
-            <h2>122</h2>
-            <span>High Risk Customer</span>
+            <h2>
+              {loading.stats ? (
+                <MDBSpinner size="sm" />
+              ) : (
+                dashboardStats.highRiskCustomers
+              )}
+            </h2>
+            <span>High Risk Transactions</span>
           </div>
         </div>
       </div>
 
       {/* Table */}
-      <div style={{ display: "flex", justifyContent: "space-between", marginTop: "20px", alignItems: "center" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          marginTop: "20px",
+          alignItems: "center",
+        }}
+      >
         <div>
-          <h5 style={{color: "black"}}>List of Transactions</h5>
+          <h5 style={{ color: "black" }}>List of Transactions</h5>
         </div>
         <div
           className="search-container"
           style={{
             display: "flex",
             alignItems: "center",
-            gap: "10px"
+            gap: "10px",
           }}
         >
-          <div
-
-          >
+          <div>
             <input
               type="text"
               placeholder="🔍 Search"
@@ -127,32 +329,65 @@ const Transactions = () => {
                 border: "1px solid #ccc",
                 outline: "none",
                 fontSize: "14px",
-                marginLife: "10px"
+                marginLife: "10px",
               }}
+              value={searchQuery}
+              onChange={handleSearch}
             />
-
           </div>
-          <button
-            className="filter-button"
-            style={{
-              width: "40px",
-              height: "40px",
-              backgroundColor: "#FFFFFF",
-              border: "none",
-              borderRadius: "10px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-              boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-            }}
-            onClick={toggleSideBox}
-          >
-            <VscSettings style={{ fontSize: "2rem" }} />
-          </button>
         </div>
       </div>
 
+      {/* Date Range Picker (Similar to Dashboard) */}
+      <div
+        className="date-range-picker"
+        style={{ marginTop: "15px", marginBottom: "15px" }}
+      >
+        <div
+          className="date-inputs"
+          style={{ display: "flex", alignItems: "center", gap: "10px" }}
+        >
+          <input
+            type="date"
+            value={formatDateForInput(dateRange.startDate)}
+            onChange={handleStartDateChange}
+            className="date-input"
+            style={{
+              padding: "8px",
+              borderRadius: "5px",
+              border: "1px solid #ccc",
+            }}
+          />
+          <span className="date-separator">to</span>
+          <input
+            type="date"
+            value={formatDateForInput(dateRange.endDate)}
+            onChange={handleEndDateChange}
+            className="date-input"
+            style={{
+              padding: "8px",
+              borderRadius: "5px",
+              border: "1px solid #ccc",
+            }}
+          />
+          <MDBBtn
+            size="sm"
+            onClick={() => {
+              setCurrentPage(1); // Reset to first page
+              fetchTransactions();
+            }}
+            className="refresh-btn"
+            style={{
+              background: "linear-gradient(90deg, #3B8BD0 0%, #2548C2 100%)",
+              color: "#fff",
+              borderRadius: "5px",
+              fontWeight: "500",
+            }}
+          >
+            Refresh
+          </MDBBtn>
+        </div>
+      </div>
 
       <div className="buttons-container">
         <button
@@ -176,145 +411,158 @@ const Transactions = () => {
       </div>
 
       <div className="table-container">
-        <MDBTable align='middle' className="transactiontable">
-          <MDBTableHead>
-            <tr>
-              <th scope='col'>Transaction ID</th>
-              <th scope='col'>Sender Client ID</th>
-              <th scope='col'>Sender Name</th>
-              <th scope='col'>Mobile Number</th>
-              <th scope='col'>Amount</th>
-              <th scope='col'>Status</th>
-              <th scope='col'>Date</th>
-            </tr>
-          </MDBTableHead>
-          <MDBTableBody>
-            {filteredTransactions.map((transaction) => (
-              <tr key={transaction.id}>
-                <td>
-                  <p>{transaction.id}</p>
-                </td>
-                <td>
-                  <p>{transaction.senderClientId}</p>
-                </td>
-                <td>
-                  <p>{transaction.senderName}</p>
-                </td>
-                <td>
-                  <p>{transaction.mobileNumber}</p>
-                </td>
-                <td>
-                  <p>{transaction.amount}</p>
-                </td>
-                <td>
-                  {transaction.status === "Fraudulent" ? (
-                    <MDBBadge pill className="failbg">
-                      <span>
-                        <GoDotFill className="dot" />
-                      </span>
-                      <span className="fraudtext">Fraudulent</span>
-                    </MDBBadge>
-                  ) : (
-                    <MDBBadge pill className="successbg">
-                      <span>
-                        <GoDotFill className="dot" />
-                      </span>
-                      <span className="genuinetext">Genuine</span>
-                    </MDBBadge>
-                  )}
-                </td>
-                <td>
-                  <p>{transaction.date}</p>
-                </td>
+        {loading.transactions ? (
+          <div className="text-center my-4">
+            <MDBSpinner />
+          </div>
+        ) : (
+          <MDBTable align="middle" className="transactiontable">
+            <MDBTableHead>
+              <tr>
+                <th scope="col">Transaction ID</th>
+                <th scope="col">Sender Client ID</th>
+                <th scope="col">Sender Name</th>
+                <th scope="col">Mobile Number</th>
+                <th scope="col">Amount</th>
+                <th scope="col">Status</th>
+                <th scope="col">Date</th>
               </tr>
-            ))}
-          </MDBTableBody>
-        </MDBTable>
-
-       
+            </MDBTableHead>
+            <MDBTableBody>
+              {filteredTransactions.length > 0 ? (
+                filteredTransactions.map((transaction) => (
+                  <tr
+                    key={
+                      transaction.id ||
+                      transaction.mtn ||
+                      Math.random().toString()
+                    }
+                  >
+                    <td>
+                      <p className="fw-normal mb-1">
+                        {transaction.id || transaction.mtn || "N/A"}
+                      </p>
+                    </td>
+                    <td>
+                      <p className="fw-normal mb-1">
+                        {transaction.sender_client_id ||
+                          transaction.sender_id ||
+                          "N/A"}
+                      </p>
+                    </td>
+                    <td>
+                      <p className="fw-normal mb-1">
+                        {transaction.sender_legal_name ||
+                          transaction.sender_name ||
+                          "N/A"}
+                      </p>
+                    </td>
+                    <td>
+                      <p className="fw-normal mb-1">
+                        {transaction.sender_mobile ||
+                          transaction.mobile ||
+                          "N/A"}
+                      </p>
+                    </td>
+                    <td>
+                      <p className="fw-normal mb-1">
+                        {transaction.total_sale || transaction.amount || "N/A"}
+                      </p>
+                    </td>
+                    <td>
+                      {transaction.sender_status_detail === "Suspicious" ||
+                      (transaction.status &&
+                        transaction.status.includes("Suspicious")) ? (
+                        <MDBBadge pill className="failbg">
+                          <span>
+                            <GoDotFill className="dot" />
+                          </span>
+                          <span className="fraudtext">Fraudulent</span>
+                        </MDBBadge>
+                      ) : (
+                        <MDBBadge pill className="successbg">
+                          <span>
+                            <GoDotFill className="dot" />
+                          </span>
+                          <span className="genuinetext">Genuine</span>
+                        </MDBBadge>
+                      )}
+                    </td>
+                    <td>
+                      <p className="fw-normal mb-1">
+                        {transaction.sending_date
+                          ? new Date(
+                              transaction.sending_date
+                            ).toLocaleDateString("en-GB")
+                          : transaction.date
+                          ? new Date(transaction.date).toLocaleDateString(
+                              "en-GB"
+                            )
+                          : "N/A"}
+                      </p>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="7" className="text-center">
+                    No transactions found
+                  </td>
+                </tr>
+              )}
+            </MDBTableBody>
+          </MDBTable>
+        )}
       </div>
-      <div style={{marginTop: "10px",
-    display: "flex",
-    justifyContent: "flex-end"}}>
-        <Pagination/>
-      </div>
-
-
-      {isSideBoxOpen && (
-        <div
-          className="side-box"
-          
-        >
-          <div>
-            <Form>
-      <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-        <Form.Label style={{color: "black",
-    fontWeight: "500",
-    marginBottom: "4px"}}>From</Form.Label>
-        <Form.Control type="date" placeholder="Choose a date" value={fromDate}
-                onChange={(e) => setFromDate(e.target.value)}/>
-      </Form.Group>
-
-      <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-        <Form.Label style={{color: "black",
-    fontWeight: "500",
-    marginBottom: "4px"}}>To</Form.Label>
-        <Form.Control type="date" placeholder="Choose a date" value={toDate}
-                onChange={(e) => setToDate(e.target.value)}/>
-      </Form.Group>
-      </Form>
-          </div>
-          
-          {/* <button
-            onClick={toggleSideBox}
-            style={{ width: "100%", padding: "10px", backgroundColor: "#007bff", color: "#fff", border: "none", borderRadius: "5px", cursor: "pointer" }}
+      <div
+        style={{
+          marginTop: "10px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        {/* Page size selector */}
+        <div className="d-flex align-items-center">
+          <span className="me-2">Rows per page:</span>
+          <select
+            className="form-select form-select-sm"
+            value={pageSize}
+            onChange={handlePageSizeChange}
+            style={{ width: "70px" }}
           >
-            Apply Filters
-          </button> */}
-
-          <div style={{display: "flex", gap: "8px"}}>
-
-          <MDBBtn
-                  className="mb-4 px-5 mt-3"
-                  size='lg'
-                  style={{
-                    background: 'none',
-                    color: 'black',
-                    borderRadius: '8px',
-                    fontWeight: '400',
-                    width: "60%",
-                    boxShadow: "none",
-                    border: "1px solid black"
-                  }}
-                  onClick={toggleSideBox}
-                >
-                  Cancel
-                </MDBBtn>
-
-          <MDBBtn
-                  className="mb-4 px-5 mt-3"
-                  size='lg'
-                  style={{
-                    background: 'linear-gradient(90deg, #3B8BD0 0%, #2548C2 100%)',
-                    color: '#fff',
-                    borderRadius: '8px',
-                    fontWeight: '600',
-                    width: "60%",
-                    display: "flex",
-                    justifyContent: "center"
-                  }}
-                  onClick={!isContinueDisabled ? toggleSideBox : undefined}
-            disabled={isContinueDisabled}
-                >
-                <span>Continue</span>
-                </MDBBtn>
-          </div>
-
-        
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
         </div>
-      )}
-    </div>
-  )
-}
 
-export default Transactions
+        {/* Pagination controls */}
+        <div className="pagination-buttons">
+          <MDBBtn
+            size="sm"
+            color="light"
+            disabled={currentPage === 1}
+            onClick={() => handlePageChange(currentPage - 1)}
+          >
+            Previous
+          </MDBBtn>
+          <span className="mx-2">
+            Page {currentPage} of {totalPages}
+          </span>
+          <MDBBtn
+            size="sm"
+            color="light"
+            disabled={currentPage === totalPages}
+            onClick={() => handlePageChange(currentPage + 1)}
+          >
+            Next
+          </MDBBtn>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Transactions;

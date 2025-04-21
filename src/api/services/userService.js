@@ -55,6 +55,31 @@ const userService = {
   },
 
   /**
+   * Make Admin
+   * @param {string} email - User data with email and role
+   */
+  makeAdmin: async (email) => {
+    try {
+      return await apiClient.post(routes.USER.MAKE_ADMIN, email);
+    } catch (error) {
+      console.error("Error inviting user:", error);
+      throw error;
+    }
+  },
+  /**
+   * GET ALL NOTIFICAT
+   * @param {string} email - User data with email and role
+   */
+  makeAdmin: async (email) => {
+    try {
+      return await apiClient.post(routes.USER.MAKE_ADMIN, email);
+    } catch (error) {
+      console.error("Error inviting user:", error);
+      throw error;
+    }
+  },
+
+  /**
    * Get current user profile
    * @returns {Promise<Object>} User profile
    */

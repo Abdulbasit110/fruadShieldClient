@@ -26,6 +26,7 @@ const USER = {
   ADMIN_USERS: "/auth/users",
   ADMIN_UPDATE_USER: (userId) => `/auth/approve-user/${userId}`,
   ADMIN_INVITE: "/users/admin/invite",
+  MAKE_ADMIN: "/auth/make-admin",
 };
 
 // Transaction endpoints

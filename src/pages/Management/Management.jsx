@@ -155,6 +155,28 @@ const Management = () => {
     }
   };
 
+  // Make user an admin
+  const makeUserAdmin = async (email) => {
+    setLoading(true);
+    try {
+      const response = await userService.makeAdmin({ email });
+
+      console.log("User made admin:", response);
+      toast.success("User role updated to Admin successfully");
+
+      // Refresh the users list
+      fetchUsers();
+
+      // Close modals if open
+      setViewUser(null);
+    } catch (error) {
+      console.error("Error making user admin:", error);
+      toast.error("Failed to update user role");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Invite new user
   const inviteUser = async (email, role) => {
     setLoading(true);
@@ -690,12 +712,7 @@ const Management = () => {
                             size="sm"
                             color="primary"
                             disabled={loading}
-                            onClick={() =>
-                              updateUserStatus(viewUser.id, {
-                                is_approved: true,
-                                role: "admin",
-                              })
-                            }
+                            onClick={() => makeUserAdmin(viewUser.email)}
                             style={{ padding: "6px 12px" }}
                           >
                             {loading ? <MDBSpinner size="sm" /> : "Make Admin"}
@@ -906,9 +923,9 @@ const Management = () => {
                               className="inputgrp"
                               readOnly
                               value={
-                                editUser.createdAt
+                                editUser.created_at
                                   ? new Date(
-                                      editUser.createdAt
+                                      editUser.created_at
                                     ).toLocaleDateString()
                                   : "N/A"
                               }
