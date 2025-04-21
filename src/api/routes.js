@@ -40,6 +40,8 @@ const TRANSACTION = {
   FRAUD_SCORE: (id) => `/transactions/${id}/fraud-score`,
   FLAG_FRAUD: (id) => `/transactions/${id}/flag-fraud`,
   MARK_LEGITIMATE: (id) => `/transactions/${id}/mark-legitimate`,
+  SENDER_FEATURES: "/model/features",
+  SENDER_FEATURE: (id) => `/model/features/${id}`,
 };
 
 // Fraud detection endpoints

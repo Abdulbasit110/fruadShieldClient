@@ -157,6 +157,35 @@ const transactionService = {
       throw error;
     }
   },
+
+  /**
+   * Get all sender features
+   * @returns {Promise<Object>} Sender features
+   */
+  getSenderFeatures: async () => {
+    try {
+      return await apiClient.get(routes.TRANSACTION.SENDER_FEATURES);
+    } catch (error) {
+      console.error("Error fetching dashboard statistics:", error);
+      throw error;
+    }
+  },
+  /**
+   * Get sender feature by sender ID
+   * @param {string} sender_id - Sender ID
+   * @returns {Promise<Object>} Sender feature details
+   */
+  getSenderFeatureById: async (sender_id) => {
+    try {
+      return await apiClient.get(routes.TRANSACTION.SENDER_FEATURE(sender_id));
+    } catch (error) {
+      console.error(
+        `Error fetching sender feature for sender ${sender_id}:`,
+        error
+      );
+      throw error;
+    }
+  },
 };
 
 export default transactionService;
