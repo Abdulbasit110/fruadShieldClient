@@ -124,6 +124,19 @@ const authService = {
   },
 
   /**
+   * Get user notifications
+   * @returns {Promise<Object>} User notifications with pagination
+   */
+  getNotifications: async () => {
+    try {
+      return await apiClient.get(routes.AUTH.NOTIFICATIONS);
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+      throw error;
+    }
+  },
+
+  /**
    * Reset user password with token
    * @param {Object} data - Password reset data
    * @param {string} data.email - User email

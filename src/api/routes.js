@@ -13,6 +13,7 @@ const AUTH = {
   FORGOT_PASSWORD: "/auth/forgot-password",
   VERIFY_TOKEN: "/auth/verify-code",
   RESET_PASSWORD: "/auth/reset-password",
+  NOTIFICATIONS: "/auth/notifications",
 };
 
 // User endpoints
