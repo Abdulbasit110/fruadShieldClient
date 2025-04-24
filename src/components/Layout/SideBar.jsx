@@ -5,6 +5,7 @@ import {
   MDBListGroupItem,
   MDBIcon,
   MDBRipple,
+  MDBBadge,
 } from "mdb-react-ui-kit";
 import { useNavigate } from "react-router-dom";
 import "./sidebar.scss";
@@ -16,10 +17,12 @@ import { IoLogOut } from "react-icons/io5";
 import { IoSettingsSharp } from "react-icons/io5";
 import { FaBell } from "react-icons/fa";
 import { HiMiniUsers } from "react-icons/hi2";
+import { useNotification } from "../../context/NotificationContext";
 
 export default function SideBar() {
   const [showSidebar, setShowSidebar] = useState(false);
   const navigate = useNavigate();
+  const { unreadCount } = useNotification();
 
   const handleSidebarToggle = () => {
     setShowSidebar(!showSidebar);
@@ -134,8 +137,17 @@ export default function SideBar() {
                     : ""
                 }`}
               >
-                <FaBell style={{ marginRight: "0.5rem !important" }} />
-                Alerts & Notifications
+                <div className="d-flex align-items-center justify-content-between w-100">
+                  <div>
+                    <FaBell style={{ marginRight: "0.5rem !important" }} />
+                    Alerts & Notifications
+                  </div>
+                  {/* {unreadCount > 0 && (
+                    <MDBBadge color="danger" pill className="ms-2">
+                      {unreadCount}
+                    </MDBBadge>
+                  )} */}
+                </div>
               </MDBListGroupItem>
             </MDBRipple>
 

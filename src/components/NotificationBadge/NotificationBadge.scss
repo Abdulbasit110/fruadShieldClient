@@ -1,0 +1,88 @@
+.notification-badge {
+  display: flex;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  background-color: #f8f9fa;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-left: 4px solid #ccc;
+
+  &:hover {
+    background-color: #f1f3f5;
+  }
+
+  &.suspicious {
+    border-left-color: #dc3545;
+    background-color: rgba(220, 53, 69, 0.05);
+  }
+
+  &.genuine {
+    border-left-color: #28a745;
+    background-color: rgba(40, 167, 69, 0.05);
+  }
+
+  .notification-icon {
+    margin-right: 12px;
+    display: flex;
+    align-items: center;
+  }
+
+  .notification-content {
+    flex: 1;
+  }
+
+  .notification-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+
+    .transaction-id {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .notification-time {
+      font-size: 12px;
+      color: #6c757d;
+    }
+  }
+
+  .notification-body {
+    p {
+      margin: 0;
+      margin-bottom: 4px;
+      font-size: 13px;
+    }
+
+    .sender-name {
+      color: #495057;
+    }
+
+    .amount {
+      font-weight: 600;
+    }
+
+    .confidence {
+      color: #dc3545;
+      font-weight: 500;
+    }
+  }
+}
+
+// Styling for unread notifications
+.notification-badge.unread {
+  background-color: rgba(13, 110, 253, 0.05);
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #0d6efd;
+  }
+}

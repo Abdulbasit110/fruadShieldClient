@@ -235,8 +235,8 @@ const Transactions = () => {
       <div className="transactions-header">
         <div className="user-info">
           <div className="user-text">
-            <span className="user-name">John Deo</span>
-            <span className="user-role">Admin</span>
+            {/* <span className="user-name">John Deo</span>
+            <span className="user-role">Admin</span> */}
           </div>
           <img src="/user.png" alt="User Avatar" className="user-avatar" />
         </div>

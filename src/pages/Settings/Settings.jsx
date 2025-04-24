@@ -192,8 +192,8 @@ const Settings = () => {
       <div className="settings-header">
         <div className="user-info">
           <div className="user-text">
-            <span className="user-name">John Deo</span>
-            <span className="user-role">Admin</span>
+            {/* <span className="user-name">John Deo</span>
+            <span className="user-role">Admin</span> */}
           </div>
           <img
             src="/user.png" // Replace with the actual user avatar URL

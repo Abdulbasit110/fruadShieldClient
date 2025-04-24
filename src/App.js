@@ -16,10 +16,11 @@ import VerificationPassword from "./pages/VerificationPage/VerificationPassword"
 import ResetPassword from "./pages/ResetPassword/ResetPassword";
 import Management from "./pages/Management/Management";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { NotificationProvider } from "./context/NotificationContext";
 
 function App() {
   return (
-    <>
+    <NotificationProvider>
       {/* Toast notifications container */}
       <ToastContainer
         position="top-right"
@@ -72,7 +73,7 @@ function App() {
         {/* Fallback route */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </>
+    </NotificationProvider>
   );
 }
 
