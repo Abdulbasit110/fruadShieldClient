@@ -39,6 +39,33 @@ const transactionService = {
   },
 
   /**
+   * @returns {Promise<Object>} Model Parameters
+   */
+  getModelParams: async () => {
+    try {
+      return await apiClient.get(routes.TRANSACTION.MODEL_PARAMS);
+    } catch (error) {
+      console.error(`Error fetching Model Params:`, error);
+      throw error;
+    }
+  },
+  /**
+   * @param {Object} modelData - Model parameters data
+   * @returns {Promise<Object>} Updated Model Parameters
+   */
+  updateModelParams: async (modelData) => {
+    try {
+      return await apiClient.put(
+        routes.TRANSACTION.UPDATE_MODEL_PARAMS("1"),
+        modelData
+      );
+    } catch (error) {
+      console.error(`Error updating Model Params:`, error);
+      throw error;
+    }
+  },
+
+  /**
    * Submit a new transaction
    * @param {Object} transactionData - Transaction data
    * @returns {Promise<Object>} Created transaction with fraud analysis
