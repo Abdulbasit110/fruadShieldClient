@@ -343,12 +343,8 @@ const Dashboard = () => {
         setLineData(lineChartData);
       }
 
-      // Prepare doughnut chart data
-      const doughnutData = prepareDoughnutData(
-        stats.genuine_transactions || 0,
-        stats.suspicious_transactions || 0
-      );
-      setDoughnutData(doughnutData);
+      // Doughnut chart data is now set only in the useEffect
+      // to prevent double rendering
     } catch (error) {
       console.error("Error fetching dashboard stats:", error);
       toast.error("Failed to load dashboard statistics");

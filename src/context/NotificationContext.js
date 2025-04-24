@@ -108,6 +108,8 @@ export const NotificationProvider = ({ children }) => {
         <div>
           <strong>Suspicious Transaction Detected!</strong>
           <div>ID: {data.transaction_id}</div>
+          <div>Sender Name: {data.sender_name}</div>
+          <div>Mobile Numbe: {data.mobile_number}</div>
           <div>Amount: {data.amount}</div>
           <div>Confidence: {data.confidence}</div>
         </div>,
@@ -118,6 +120,8 @@ export const NotificationProvider = ({ children }) => {
         <div>
           <strong>New Genuine Transaction</strong>
           <div>ID: {data.transaction_id}</div>
+          <div>Sender Name: {data.sender_name}</div>
+          <div>Mobile Numbe: {data.mobile_number}</div>
           <div>Amount: {data.amount}</div>
         </div>,
         { autoClose: 5000 }
