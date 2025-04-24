@@ -172,8 +172,7 @@ const Notifications = () => {
                       <p>{notification.amount || "Amount"}</p>
                     </td>
                     <td>
-                      {notification.status === "Fraudulent" ||
-                      notification.is_fraudulent ? (
+                      {notification.status === "Suspicious" ? (
                         <MDBBadge pill className="failbg">
                           <span>
                             <GoDotFill className="dot" />
