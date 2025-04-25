@@ -80,11 +80,11 @@ const Transactions = () => {
     }
   };
 
-  // Fetch transactions
+  // Fetch transactions with proper date filtering
   const fetchTransactions = async () => {
     setLoading((prev) => ({ ...prev, transactions: true }));
     try {
-      // Format dates to match Dashboard approach
+      // Format dates to match expected API format
       const formattedStartDate = formatDate(dateRange.startDate);
       const formattedEndDate = formatDate(dateRange.endDate);
 
@@ -104,8 +104,8 @@ const Transactions = () => {
 
       processTransactionResponse(response);
     } catch (error) {
-      console.error("Error fetching transactions:", error);
-      toast.error("Failed to load transactions");
+      console.error("Error fetching transactions by date:", error);
+      toast.error("Failed to load transactions for the selected date range");
       setTransactions([]);
     } finally {
       setLoading((prev) => ({ ...prev, transactions: false }));
@@ -140,17 +140,33 @@ const Transactions = () => {
 
   // Handle date range change
   const handleStartDateChange = (e) => {
+    const newStartDate = new Date(e.target.value);
     setDateRange((prev) => ({
       ...prev,
-      startDate: new Date(e.target.value),
+      startDate: newStartDate,
     }));
+
+    // Only fetch if we have both dates
+    if (newStartDate && dateRange.endDate) {
+      setCurrentPage(1); // Reset to first page when date changes
+      // Use setTimeout to ensure state is updated before fetching
+      setTimeout(() => fetchTransactions(), 0);
+    }
   };
 
   const handleEndDateChange = (e) => {
+    const newEndDate = new Date(e.target.value);
     setDateRange((prev) => ({
       ...prev,
-      endDate: new Date(e.target.value),
+      endDate: newEndDate,
     }));
+
+    // Only fetch if we have both dates
+    if (dateRange.startDate && newEndDate) {
+      setCurrentPage(1); // Reset to first page when date changes
+      // Use setTimeout to ensure state is updated before fetching
+      setTimeout(() => fetchTransactions(), 0);
+    }
   };
 
   // Handle search
@@ -161,8 +177,7 @@ const Transactions = () => {
   // Effect to fetch initial data
   useEffect(() => {
     fetchDashboardStats();
-    // Note: We don't auto-fetch transactions here,
-    // will be triggered by the effect below or when "Refresh" is clicked
+    fetchTransactions(); // Fetch transactions on initial load with default date range
   }, []);
 
   // Effect to fetch transactions when page or pageSize changes
@@ -212,17 +227,18 @@ const Transactions = () => {
     // Then apply search query if not empty
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(
-        (txn) =>
-          (txn.id && txn.id.toLowerCase().includes(query)) ||
-          (txn.mtn && txn.mtn.toLowerCase().includes(query)) ||
-          (txn.sender_legal_name &&
-            txn.sender_legal_name.toLowerCase().includes(query)) ||
-          (txn.sender_name && txn.sender_name.toLowerCase().includes(query)) ||
-          (txn.sender_mobile &&
-            txn.sender_mobile.toLowerCase().includes(query)) ||
-          (txn.mobile && txn.mobile.toLowerCase().includes(query))
-      );
+      filtered = filtered.filter((txn) => {
+        // Search across ALL properties of the transaction
+        return Object.keys(txn).some((key) => {
+          const value = txn[key];
+          // Check if value is a string or can be converted to a string
+          if (value !== null && value !== undefined) {
+            const stringValue = String(value).toLowerCase();
+            return stringValue.includes(query);
+          }
+          return false;
+        });
+      });
     }
 
     return filtered;
@@ -320,7 +336,7 @@ const Transactions = () => {
           <div>
             <input
               type="text"
-              placeholder="🔍 Search"
+              placeholder="🔍 Search across all transaction fields"
               className="search-input"
               style={{
                 width: "100%",
