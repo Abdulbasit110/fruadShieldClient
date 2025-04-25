@@ -389,11 +389,9 @@ const Dashboard = () => {
         limit: pageSize,
       });
 
-      console.log("transactions", response);
-
       // Check if response is an array directly or contains a transactions property
-      const transactionsData = Array.isArray(response)
-        ? response
+      const transactionsData = Array.isArray(response.transactions)
+        ? response.transactions
         : response.transactions || [];
 
       // Handle pagination metadata if available

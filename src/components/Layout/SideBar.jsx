@@ -23,7 +23,7 @@ export default function SideBar() {
   const [showSidebar, setShowSidebar] = useState(false);
   const navigate = useNavigate();
   const { unreadCount } = useNotification();
-
+  const user = JSON.parse(localStorage.getItem("user"));
   const handleSidebarToggle = () => {
     setShowSidebar(!showSidebar);
   };
@@ -69,20 +69,22 @@ export default function SideBar() {
               </MDBListGroupItem>
             </MDBRipple>
 
-            <MDBRipple rippleTag="span">
-              <MDBListGroupItem
-                action
-                onClick={() => navigate("/app/management")}
-                className={`border-0 rounded ${
-                  window.location.pathname.includes("/management")
-                    ? "active"
-                    : ""
-                }`}
-              >
-                <HiMiniUsers style={{ marginRight: "0.5rem !important" }} />
-                User Management
-              </MDBListGroupItem>
-            </MDBRipple>
+            {user.role == "admin" && (
+              <MDBRipple rippleTag="span">
+                <MDBListGroupItem
+                  action
+                  onClick={() => navigate("/app/management")}
+                  className={`border-0 rounded ${
+                    window.location.pathname.includes("/management")
+                      ? "active"
+                      : ""
+                  }`}
+                >
+                  <HiMiniUsers style={{ marginRight: "0.5rem !important" }} />
+                  User Management
+                </MDBListGroupItem>
+              </MDBRipple>
+            )}
 
             <MDBRipple rippleTag="span">
               <MDBListGroupItem
