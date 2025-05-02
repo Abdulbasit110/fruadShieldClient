@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import socketService from "../api/services/socketService";
 import userService from "../api/services/userService";
+import { playNotificationSound } from "../utils/audioUtils";
 
 // Create a context for notifications
 const NotificationContext = createContext();
@@ -115,6 +116,9 @@ export const NotificationProvider = ({ children }) => {
         </div>,
         { autoClose: 8000 }
       );
+
+      // Play error sound for suspicious transactions
+      playNotificationSound("error", { volume: 0.7 });
     } else {
       toast.success(
         <div>
@@ -126,6 +130,9 @@ export const NotificationProvider = ({ children }) => {
         </div>,
         { autoClose: 5000 }
       );
+
+      // Play success sound for genuine transactions
+      playNotificationSound("success", { volume: 0.5 });
     }
   };
 

@@ -48,6 +48,14 @@ const Settings = () => {
   const [updateSuccess, setUpdateSuccess] = useState(false);
   const [updateLoading, setUpdateLoading] = useState(false);
 
+  // Notification sound settings
+  const [notificationSoundEnabled, setNotificationSoundEnabled] = useState(
+    localStorage.getItem("notificationSoundEnabled") !== "false" // Default to true
+  );
+  const [notificationVolume, setNotificationVolume] = useState(
+    parseInt(localStorage.getItem("notificationVolume") || "50")
+  );
+
   // Fetch model parameters when component mounts
   useEffect(() => {
     fetchModelParams();
@@ -217,9 +225,17 @@ const Settings = () => {
         >
           Privileges
         </button>
+        <button
+          className={`action-button ${
+            filter === "Notifications" ? "active" : ""
+          }`}
+          onClick={() => setFilter("Notifications")}
+        >
+          Notifications
+        </button>
       </div>
 
-      {filter == "Thresholds" ? (
+      {filter === "Thresholds" ? (
         <>
           {/* View Card */}
           <div className="container mt-4">
@@ -436,7 +452,7 @@ const Settings = () => {
             </>
           )}
         </>
-      ) : (
+      ) : filter === "Privileges" ? (
         <>
           <div className="container mt-4">
             <div className="cardview">
@@ -450,7 +466,7 @@ const Settings = () => {
                     marginTop: "-9px",
                   }}
                 >
-                  Here’s a quick overview of essential details to get you
+                  Here's a quick overview of essential details to get you
                   started with the fundamentals.
                 </p>
               </div>
@@ -592,6 +608,166 @@ const Settings = () => {
                   Save
                 </MDBBtn>
               </div>
+            </div>
+          </div>
+        </>
+      ) : (
+        // Notifications settings tab
+        <>
+          <div className="container mt-4">
+            <div className="cardview">
+              <div className="cornerbg">
+                <h6 className="mb-4" style={{ color: "black" }}>
+                  Notification Settings
+                </h6>
+              </div>
+
+              {/* Success message for notification settings */}
+              {updateSuccess && (
+                <div className="alert alert-success" role="alert">
+                  Notification settings updated successfully!
+                </div>
+              )}
+
+              <Row>
+                <Col md={6} className="mb-4">
+                  <Card.Body>
+                    <h5>Sound Notifications</h5>
+                    <p className="text-muted mb-4">
+                      Configure how you want to be notified about new
+                      transactions
+                    </p>
+
+                    <Form.Check
+                      type="switch"
+                      id="notification-sound-toggle"
+                      label="Enable notification sounds"
+                      checked={notificationSoundEnabled}
+                      onChange={(e) => {
+                        setNotificationSoundEnabled(e.target.checked);
+                        localStorage.setItem(
+                          "notificationSoundEnabled",
+                          e.target.checked
+                        );
+                        import("../../utils/audioUtils").then(
+                          ({ setDefaultVolume, playNotificationSound }) => {
+                            if (e.target.checked) {
+                              // Play a test sound when enabled
+                              playNotificationSound("default", {
+                                volume: notificationVolume / 100,
+                              });
+                            }
+                          }
+                        );
+                        setUpdateSuccess(true);
+                        setTimeout(() => setUpdateSuccess(false), 3000);
+                      }}
+                      className="mb-4"
+                    />
+
+                    <Form.Label>
+                      Notification Volume: {notificationVolume}%
+                    </Form.Label>
+                    <Form.Range
+                      disabled={!notificationSoundEnabled}
+                      value={notificationVolume}
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value);
+                        setNotificationVolume(value);
+                        localStorage.setItem("notificationVolume", value);
+                        import("../../utils/audioUtils").then(
+                          ({ setDefaultVolume }) => {
+                            setDefaultVolume(value / 100); // Convert to 0-1 range
+                          }
+                        );
+                      }}
+                      onMouseUp={() => {
+                        // Play test sound when slider is released
+                        if (notificationSoundEnabled) {
+                          import("../../utils/audioUtils").then(
+                            ({ playNotificationSound }) => {
+                              playNotificationSound("default", {
+                                volume: notificationVolume / 100,
+                              });
+                            }
+                          );
+                          setUpdateSuccess(true);
+                          setTimeout(() => setUpdateSuccess(false), 3000);
+                        }
+                      }}
+                    />
+                  </Card.Body>
+                </Col>
+
+                <Col md={6} className="mb-4">
+                  <Card.Body>
+                    <h5>Alert Types</h5>
+                    <p className="text-muted mb-4">
+                      Customize sound alerts for different transaction types
+                    </p>
+
+                    <div className="d-flex align-items-center justify-content-between mb-3">
+                      <div>
+                        <h6 className="mb-0">Genuine Transactions</h6>
+                        <p className="text-muted mb-0 small">
+                          Standard notification
+                        </p>
+                      </div>
+                      <MDBBtn
+                        size="sm"
+                        color="success"
+                        disabled={!notificationSoundEnabled}
+                        onClick={() => {
+                          import("../../utils/audioUtils").then(
+                            ({ playNotificationSound }) => {
+                              playNotificationSound("success", {
+                                volume: notificationVolume / 100,
+                              });
+                            }
+                          );
+                        }}
+                      >
+                        Test Sound
+                      </MDBBtn>
+                    </div>
+
+                    <div className="d-flex align-items-center justify-content-between mb-3">
+                      <div>
+                        <h6 className="mb-0">Suspicious Transactions</h6>
+                        <p className="text-muted mb-0 small">
+                          High priority alert
+                        </p>
+                      </div>
+                      <MDBBtn
+                        size="sm"
+                        color="danger"
+                        disabled={!notificationSoundEnabled}
+                        onClick={() => {
+                          import("../../utils/audioUtils").then(
+                            ({ playNotificationSound }) => {
+                              playNotificationSound("error", {
+                                volume: notificationVolume / 100,
+                              });
+                            }
+                          );
+                        }}
+                      >
+                        Test Sound
+                      </MDBBtn>
+                    </div>
+                  </Card.Body>
+                </Col>
+              </Row>
+
+              <Row className="mt-3">
+                <Col>
+                  <p className="text-muted small">
+                    <strong>Note:</strong> Notification sounds may not work if
+                    your browser blocks autoplay. Make sure to interact with the
+                    page at least once for sounds to work properly.
+                  </p>
+                </Col>
+              </Row>
             </div>
           </div>
         </>
