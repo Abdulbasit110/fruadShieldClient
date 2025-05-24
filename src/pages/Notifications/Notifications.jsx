@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 // import "./dashboard.scss";
 import { CiCreditCard1 } from "react-icons/ci";
 import { GrGroup } from "react-icons/gr";
-import { IoArrowForwardCircleOutline } from "react-icons/io5";
+import { IoArrowForwardCircleOutline, IoRefreshOutline } from "react-icons/io5";
 import {
   MDBBadge,
   MDBBtn,
@@ -19,66 +19,96 @@ import Form from "react-bootstrap/Form";
 import userService from "../../api/services/userService";
 
 // Fallback data in case the API fails
-const fallbackTransactions = Array.from({ length: 10 }, (_, index) => {
-  const isFraudulent = index % 2 === 0; // Alternate between Fraudulent and Genuine
+const fallbackTransactions = Array.from({ length: 15 }, (_, index) => {
+  const statusOptions = ["Fraudulent", "Suspicious"];
+  const status = statusOptions[index % 2]; // Alternate between Fraudulent and Suspicious
   return {
-    id: `TXN-20231026-${String(index + 1).padStart(3, "0")}`,
+    id: `TXN-20241026-${String(index + 1).padStart(3, "0")}`,
+    transaction_id: `TXN-20241026-${String(index + 1).padStart(3, "0")}`,
+    sender_name: `Sender Name ${index + 1}`,
     senderName: `Sender Name ${index + 1}`,
+    mobile_number: `+92 303 45${(67890 + index).toString().slice(-5)}`,
     mobileNumber: `+92 303 45${(67890 + index).toString().slice(-5)}`,
     amount: `PKR ${(Math.random() * 1000000 + 100000).toFixed(2)}`,
-    status: isFraudulent ? "Fraudulent" : "Genuine",
+    status: status,
     date: new Date(
       2024,
-      1,
-      Math.floor(Math.random() * 28) + 1
+      4, // May (0-indexed)
+      24 // Today's date
     ).toLocaleDateString("en-GB"),
+    created_at: new Date(2024, 4, 24).toISOString(),
   };
 });
 
 const Notifications = () => {
-  const [filter, setFilter] = useState("All");
+  const [filter, setFilter] = useState("Fraudulent"); // Default to Fraudulent
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [notificationCount, setNotificationCount] = useState(0);
   const itemsPerPage = 10;
 
   useEffect(() => {
     fetchNotifications();
   }, [filter, currentPage]);
+  const fetchNotifications = async (isRefresh = false) => {
+    if (isRefresh) {
+      setRefreshing(true);
+    } else {
+      setLoading(true);
+    }
 
-  const fetchNotifications = async () => {
-    setLoading(true);
     try {
       // Add pagination and filtering parameters
       const params = {
         page: currentPage,
         limit: itemsPerPage,
-        unreadOnly: filter === "Recent", // Use unreadOnly parameter for Recent filter
+        hours: 24, // Default to past 24 hours
+        status: filter, // Filter by status (Fraudulent or Suspicious)
       };
 
       const response = await userService.getNotifications(params);
       console.log("API Response:", response);
 
-      if (response) {
-        setNotifications(response.notifications || []);
-        setTotalPages(response.totalPages || 1);
+      if (response && response.notifications) {
+        const notificationsData = response.notifications || [];
+        setNotifications(notificationsData);
+        setTotalPages(
+          response.totalPages || Math.ceil(response.total / itemsPerPage) || 1
+        );
+        setNotificationCount(response.total || notificationsData.length);
       } else {
         // Fallback to mock data if the API response is empty or malformed
-        setNotifications(fallbackTransactions);
-        setTotalPages(Math.ceil(fallbackTransactions.length / itemsPerPage));
+        const filteredFallback = fallbackTransactions.filter(
+          (t) => t.status === filter
+        );
+        setNotifications(filteredFallback);
+        setTotalPages(Math.ceil(filteredFallback.length / itemsPerPage));
+        setNotificationCount(filteredFallback.length);
       }
       setError(null);
     } catch (err) {
       console.error("Error fetching notifications:", err);
       setError("Failed to fetch notifications. Using fallback data.");
       // Fallback to static data in case of error
-      setNotifications(fallbackTransactions);
-      setTotalPages(Math.ceil(fallbackTransactions.length / itemsPerPage));
+      const filteredFallback = fallbackTransactions.filter(
+        (t) => t.status === filter
+      );
+      setNotifications(filteredFallback);
+      setTotalPages(Math.ceil(filteredFallback.length / itemsPerPage));
+      setNotificationCount(filteredFallback.length);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
+  };
+
+  const handleRefresh = () => {
+    setCurrentPage(1);
+    fetchNotifications(true);
   };
 
   const handlePageChange = (page) => {
@@ -95,38 +125,56 @@ const Notifications = () => {
           </div>
           <img src="/user.png" alt="User Avatar" className="user-avatar" />
         </div>
+      </div>{" "}
+      <div className="insights-header">
+        <h3 style={{ color: "black" }}>
+          Alerts & Notifications - Past 24 Hours
+        </h3>
+        <div className="insights-actions">
+          {notificationCount > 0 && (
+            <span className="insights-count">
+              {notificationCount} notifications found
+            </span>
+          )}
+          <button
+            className="refresh-button"
+            onClick={handleRefresh}
+            disabled={refreshing}
+            title="Refresh notifications"
+          >
+            <IoRefreshOutline
+              className={refreshing ? "refresh-spinning" : ""}
+            />
+          </button>
+        </div>
       </div>
-      <h3 style={{ color: "black" }}>Alerts & Notifications</h3>
-
       {/* Buttons */}
       <div className="buttons-container">
         <button
-          className={`action-button ${filter === "All" ? "active" : ""}`}
+          className={`action-button ${filter === "Fraudulent" ? "active" : ""}`}
           onClick={() => {
-            setFilter("All");
+            setFilter("Fraudulent");
             setCurrentPage(1);
           }}
         >
-          All
+          Fraudulent
         </button>
         <button
-          className={`action-button ${filter === "Recent" ? "active" : ""}`}
+          className={`action-button ${filter === "Suspicious" ? "active" : ""}`}
           onClick={() => {
-            setFilter("Recent");
+            setFilter("Suspicious");
             setCurrentPage(1);
           }}
         >
-          Recent
+          Suspicious
         </button>
       </div>
-
       {/* Error message */}
       {error && (
         <div className="alert alert-warning" role="alert">
           {error}
         </div>
       )}
-
       {/* Loading indicator */}
       {loading ? (
         <div className="text-center my-4">
@@ -170,14 +218,17 @@ const Notifications = () => {
                     </td>
                     <td>
                       <p>{notification.amount || "Amount"}</p>
-                    </td>
+                    </td>{" "}
                     <td>
-                      {notification.status === "Suspicious" ? (
+                      {notification.status === "Suspicious" ||
+                      notification.status === "Fraudulent" ? (
                         <MDBBadge pill className="failbg">
                           <span>
                             <GoDotFill className="dot" />
                           </span>
-                          <span className="fraudtext">Fraudulent</span>
+                          <span className="fraudtext">
+                            {notification.status}
+                          </span>
                         </MDBBadge>
                       ) : (
                         <MDBBadge pill className="successbg">
@@ -209,7 +260,6 @@ const Notifications = () => {
           </MDBTable>
         </div>
       )}
-
       <div
         style={{
           marginTop: "10px",

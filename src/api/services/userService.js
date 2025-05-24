@@ -146,6 +146,8 @@ const userService = {
    * @param {number} params.page - Page number
    * @param {number} params.limit - Items per page
    * @param {boolean} params.unreadOnly - Filter to unread notifications only
+   * @param {number} params.hours - Filter notifications by hours (e.g., 24 for last 24 hours)
+   * @param {string} params.status - Filter by notification status (e.g., 'Suspicious', 'Genuine')
    * @returns {Promise<Object>} User notifications with pagination
    */
   getNotifications: async (params = {}) => {

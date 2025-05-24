@@ -55,7 +55,7 @@ function App() {
                     <Route path="dashboard" element={<Dashboard />} />
                     <Route path="transactions" element={<Transactions />} />
                     <Route path="insights" element={<Insights />} />
-                    <Route path="details" element={<Details />} />
+                    {/* <Route path="details" element={<Details />} /> */}
                     <Route path="notifications" element={<Notifications />} />
                     <Route path="settings" element={<Settings />} />
                     <Route path="management" element={<Management />} />

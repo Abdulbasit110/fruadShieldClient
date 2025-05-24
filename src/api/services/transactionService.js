@@ -187,13 +187,15 @@ const transactionService = {
 
   /**
    * Get all sender features
+   * @param {Object} params - Query parameters
+   * @param {number} params.hours - Filter features by hours (e.g., 24 for last 24 hours)
    * @returns {Promise<Object>} Sender features
    */
-  getSenderFeatures: async () => {
+  getSenderFeatures: async (params = {}) => {
     try {
-      return await apiClient.get(routes.TRANSACTION.SENDER_FEATURES);
+      return await apiClient.get(routes.TRANSACTION.SENDER_FEATURES, params);
     } catch (error) {
-      console.error("Error fetching dashboard statistics:", error);
+      console.error("Error fetching sender features:", error);
       throw error;
     }
   },

@@ -201,5 +201,51 @@
     }
   }
 
+  // Loading spinner animation
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+
+// Empty state styling
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+
+    .empty-icon {
+        color: #ccc;
+        margin-bottom: 15px;
+    }
+
+    .empty-title {
+        color: #999;
+        margin-bottom: 10px;
+    }
+
+    .refresh-btn {
+        background: #4285F4;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: background-color 0.3s ease;
+
+        &:hover {
+            background: #3367D6;
+        }
+
+        &:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+    }
+}
+
    
 }

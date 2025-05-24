@@ -212,5 +212,108 @@
 
   }
 
-   
+  .insights-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        
+        h3 {
+            margin: 0;
+            color: black;
+        }
+        
+        .insights-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            
+            .insights-count {
+                font-size: 14px;
+                color: #666;
+                font-weight: 500;
+            }
+            
+            .refresh-button {
+                background: #3B8BD0;
+                border: none;
+                border-radius: 8px;
+                padding: 8px 12px;
+                color: white;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.3s ease;
+                
+                &:hover {
+                    background: #2a6bb3;
+                    transform: translateY(-1px);
+                }
+                
+                &:disabled {
+                    background: #ccc;
+                    cursor: not-allowed;
+                    transform: none;
+                }
+                
+                svg {
+                    font-size: 18px;
+                }
+            }
+        }
+    }
+    
+    .refresh-spinning {
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    
+    // Loading states
+    .loading-overlay {
+        position: relative;
+        opacity: 0.7;
+        pointer-events: none;
+    }
+    
+    .loading-spinner {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 10;
+    }
+    
+    .spinner-border {
+        width: 2rem;
+        height: 2rem;
+        border: 0.25em solid currentColor;
+        border-right-color: transparent;
+        border-radius: 50%;
+        animation: spinner-border 0.75s linear infinite;
+    }
+    
+    @keyframes spinner-border {
+        to { transform: rotate(360deg); }
+    }
+    
+    .text-primary {
+        color: #3B8BD0 !important;
+    }
+    
+    .visually-hidden {
+        position: absolute !important;
+        width: 1px !important;
+        height: 1px !important;
+        padding: 0 !important;
+        margin: -1px !important;
+        overflow: hidden !important;
+        clip: rect(0, 0, 0, 0) !important;
+        white-space: nowrap !important;
+        border: 0 !important;
+    }
 }

@@ -22,6 +22,7 @@ import { AiOutlineDollarCircle } from "react-icons/ai";
 import { RiExchangeDollarLine } from "react-icons/ri";
 import { MdOutlineLineStyle } from "react-icons/md";
 import { RiFlowChart } from "react-icons/ri";
+import { IoRefreshOutline } from "react-icons/io5";
 import transactionService from "../../api/services/transactionService";
 
 // Remove the static insights data, we'll use the API data instead
@@ -43,23 +44,25 @@ const Insights = () => {
   const [selectedSenderFeature, setSelectedSenderFeature] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Fetch all sender features when component mounts
-  useEffect(() => {
-    const fetchSenderFeatures = async () => {
-      setLoading(true);
-      try {
-        const response = await transactionService.getSenderFeatures();
-        console.log("All sender features", response.features);
-        if (response) {
-          setSenderFeatures(response);
-        }
-      } catch (error) {
-        console.error("Error fetching sender features:", error);
-      } finally {
-        setLoading(false);
+  // Function to fetch sender features from past 24 hours
+  const fetchSenderFeatures = async () => {
+    setLoading(true);
+    try {
+      // Fetch insights from only the past 24 hours
+      const response = await transactionService.getSenderFeatures({
+        hours: 24,
+      });
+      console.log("Sender features from past 24 hours", response.features);
+      if (response) {
+        setSenderFeatures(response);
       }
-    };
-
+    } catch (error) {
+      console.error("Error fetching sender features:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
     fetchSenderFeatures();
   }, []);
 
@@ -108,10 +111,12 @@ const Insights = () => {
             className="user-avatar"
           />
         </div>
-      </div>
+      </div>{" "}
       {!selectedTransaction && (
         <>
-          <h3 style={{ color: "black" }}>ML Algorithm Insights</h3>
+          <h3 style={{ color: "black" }}>
+            ML Algorithm Insights - Past 24 Hours
+          </h3>
 
           <div
             style={{
@@ -121,8 +126,15 @@ const Insights = () => {
               alignItems: "center",
             }}
           >
+            {" "}
             <div>
-              <h5 style={{ color: "black" }}>List of ML Algorithm</h5>
+              <h5 style={{ color: "black" }}>Recent ML Algorithm Insights</h5>
+              <p
+                style={{ color: "#666", fontSize: "14px", margin: "5px 0 0 0" }}
+              >
+                Showing insights generated in the last 24 hours (
+                {senderFeatures.features?.length || 0} insights found)
+              </p>
             </div>
             <div
               className="search-container"
@@ -133,6 +145,25 @@ const Insights = () => {
                 marginBottom: "8px",
               }}
             >
+              <button
+                onClick={fetchSenderFeatures}
+                disabled={loading}
+                style={{
+                  background: "#4285F4",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "8px",
+                  padding: "8px 12px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "5px",
+                  cursor: loading ? "not-allowed" : "pointer",
+                  opacity: loading ? 0.6 : 1,
+                }}
+              >
+                <IoRefreshOutline size={16} />
+                {loading ? "Refreshing..." : "Refresh"}
+              </button>
               <div>
                 <input
                   type="text"
@@ -152,60 +183,120 @@ const Insights = () => {
             </div>
           </div>
         </>
-      )}
-
+      )}{" "}
       {/* Conditionally render based on selection */}
       {!selectedTransaction ? (
         // Table View
         <div>
-          <div className="table-container">
-            <MDBTable align="middle" className="transactiontable">
-              <MDBTableHead>
-                <tr>
-                  <th scope="col">Sr. No</th>
-                  <th scope="col">Agent Repcode</th>
-                  <th scope="col">Total Trx</th>
-                  <th scope="col">Total Beneficiaries</th>
-                  <th scope="col">Total Paid out Trx</th>
-                  <th scope="col">Avg Top 05 Daily Trx</th>
-                  <th scope="col">SD of Top 5 Trx</th>
-                  <th scope="col">Actions</th>
-                </tr>
-              </MDBTableHead>
-              <MDBTableBody>
-                {senderFeatures.features.map((transaction) => (
-                  <tr key={transaction.sender_id}>
-                    <td>{transaction.sender_id}</td>
-                    <td>{transaction["Length of Seq"]}</td>
-                    <td>{transaction["Total Trx"]}</td>
-                    <td>{transaction["Total Beneficiaries"]}</td>
-                    <td>{transaction["Total Paid out Trx"]}</td>
-                    <td>{transaction["Avg Top 05 Daily Trx"]}</td>
-                    <td>{transaction["SD Trx Vol"].toFixed(2)}</td>
-                    <td>
-                      <MDBCardText
-                        className="viewtext"
-                        size="sm"
-                        onClick={() => handleViewDetails(transaction)}
-                        style={{ color: "#4285F4" }}
-                      >
-                        View Details
-                      </MDBCardText>
-                    </td>
-                  </tr>
-                ))}
-              </MDBTableBody>
-            </MDBTable>
-          </div>
-          <div
-            style={{
-              marginTop: "10px",
-              display: "flex",
-              justifyContent: "flex-end",
-            }}
-          >
-            <Pagination />
-          </div>
+          {senderFeatures.features && senderFeatures.features.length > 0 ? (
+            <>
+              <div className="table-container">
+                <MDBTable align="middle" className="transactiontable">
+                  <MDBTableHead>
+                    <tr>
+                      <th scope="col">Sr. No</th>
+                      <th scope="col">Agent Repcode</th>
+                      <th scope="col">Total Trx</th>
+                      <th scope="col">Total Beneficiaries</th>
+                      <th scope="col">Total Paid out Trx</th>
+                      <th scope="col">Avg Top 05 Daily Trx</th>
+                      <th scope="col">SD of Top 5 Trx</th>
+                      <th scope="col">Actions</th>
+                    </tr>
+                  </MDBTableHead>
+                  <MDBTableBody>
+                    {senderFeatures.features.map((transaction) => (
+                      <tr key={transaction.sender_id}>
+                        <td>{transaction.sender_id}</td>
+                        <td>{transaction["Length of Seq"]}</td>
+                        <td>{transaction["Total Trx"]}</td>
+                        <td>{transaction["Total Beneficiaries"]}</td>
+                        <td>{transaction["Total Paid out Trx"]}</td>
+                        <td>{transaction["Avg Top 05 Daily Trx"]}</td>
+                        <td>{transaction["SD Trx Vol"].toFixed(2)}</td>
+                        <td>
+                          <MDBCardText
+                            className="viewtext"
+                            size="sm"
+                            onClick={() => handleViewDetails(transaction)}
+                            style={{ color: "#4285F4" }}
+                          >
+                            View Details
+                          </MDBCardText>
+                        </td>
+                      </tr>
+                    ))}
+                  </MDBTableBody>
+                </MDBTable>
+              </div>
+              <div
+                style={{
+                  marginTop: "10px",
+                  display: "flex",
+                  justifyContent: "flex-end",
+                }}
+              >
+                <Pagination />
+              </div>
+            </>
+          ) : (
+            <div
+              style={{
+                textAlign: "center",
+                padding: "40px 20px",
+                color: "#666",
+              }}
+            >
+              {loading ? (
+                <div>
+                  <div
+                    style={{
+                      display: "inline-block",
+                      width: "20px",
+                      height: "20px",
+                      border: "3px solid #f3f3f3",
+                      borderTop: "3px solid #4285F4",
+                      borderRadius: "50%",
+                      animation: "spin 1s linear infinite",
+                      marginBottom: "10px",
+                    }}
+                  ></div>
+                  <p>Loading insights from the past 24 hours...</p>
+                </div>
+              ) : (
+                <div>
+                  <MdShowChart
+                    size={48}
+                    style={{ color: "#ccc", marginBottom: "15px" }}
+                  />
+                  <h5 style={{ color: "#999", marginBottom: "10px" }}>
+                    No Recent Insights Found
+                  </h5>
+                  <p style={{ marginBottom: "20px" }}>
+                    No ML algorithm insights were generated in the past 24
+                    hours.
+                  </p>
+                  <button
+                    onClick={fetchSenderFeatures}
+                    style={{
+                      background: "#4285F4",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "8px",
+                      padding: "10px 20px",
+                      cursor: "pointer",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "8px",
+                    }}
+                  >
+                    <IoRefreshOutline size={16} />
+                    Refresh Insights
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       ) : (
         // Detail View
