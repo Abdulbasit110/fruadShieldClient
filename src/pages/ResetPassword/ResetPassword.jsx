@@ -11,10 +11,8 @@ import { toast } from "react-toastify";
 const ResetPassword = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [oldPassword, setOldPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false); // For New Password
   const [showConfirmPassword, setShowConfirmPassword] = useState(false); // For Confirm Password
-  const [showOldPassword, setShowOldPassword] = useState(false); // For Old Password
   const navigate = useNavigate();
   const location = useLocation();
   const [email, setEmail] = useState("");
@@ -60,9 +58,7 @@ const ResetPassword = () => {
       }, 1500);
     },
   });
-
-  const isButtonDisabled =
-    !newPassword || !confirmPassword || !oldPassword || loading;
+  const isButtonDisabled = !newPassword || !confirmPassword || loading;
 
   const handleBack = () => {
     navigate("/verification");
@@ -75,10 +71,8 @@ const ResetPassword = () => {
   };
 
   const handleButton = async () => {
-    // More detailed debug info
-
-    // Validate passwords
-    if (!oldPassword || !newPassword || !confirmPassword) {
+    // More detailed debug info    // Validate passwords
+    if (!newPassword || !confirmPassword) {
       toast.error("Please fill in all fields");
       return;
     }
@@ -99,9 +93,7 @@ const ResetPassword = () => {
       toast.error("Missing verification information. Please try again.");
       navigate("/forget-password");
       return;
-    }
-
-    // Try one more time to get the token if it's missing
+    } // Try one more time to get the token if it's missing
     if (!resetToken) {
       const lastChanceToken =
         localStorage.getItem("resetToken") ||
@@ -114,7 +106,6 @@ const ResetPassword = () => {
             email,
             code: verificationCode,
             new_password: newPassword,
-            old_password: oldPassword,
             token: lastChanceToken,
           });
           return;
@@ -136,7 +127,6 @@ const ResetPassword = () => {
         email,
         code: verificationCode,
         new_password: newPassword,
-        old_password: oldPassword,
         token: resetToken,
       });
       // Navigation is handled in onSuccess callback
@@ -286,8 +276,7 @@ const ResetPassword = () => {
                   {error.message ||
                     "Failed to reset password. Please try again."}
                 </div>
-              )}
-
+              )}{" "}
               {/* Success Message */}
               {resetData && (
                 <div
@@ -304,53 +293,6 @@ const ResetPassword = () => {
                   Password has been reset successfully. Redirecting to login...
                 </div>
               )}
-
-              {/* Old Password Field */}
-              <label
-                htmlFor="oldPassword"
-                style={{
-                  alignSelf: "flex-start",
-                  fontSize: "14px",
-                  fontWeight: "500",
-                  color: "#333",
-                  marginBottom: "8px",
-                }}
-              >
-                Current Password
-              </label>
-              <div style={{ position: "relative", width: "100%" }}>
-                <input
-                  type={showOldPassword ? "text" : "password"}
-                  id="oldPassword"
-                  placeholder="Enter current password"
-                  style={{
-                    width: "100%",
-                    padding: "10px 14px",
-                    borderRadius: "8px",
-                    border: "1px solid #ddd",
-                    marginBottom: "20px",
-                    fontSize: "14px",
-                  }}
-                  value={oldPassword}
-                  onChange={(e) => setOldPassword(e.target.value)}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowOldPassword(!showOldPassword)}
-                  style={{
-                    position: "absolute",
-                    top: "35%",
-                    right: "10px",
-                    transform: "translateY(-50%)",
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                  }}
-                >
-                  {showOldPassword ? <FaEyeSlash /> : <FaEye />}
-                </button>
-              </div>
-
               {/* New Password Field */}
               <label
                 htmlFor="newPassword"
@@ -396,7 +338,6 @@ const ResetPassword = () => {
                   {showPassword ? <FaEyeSlash /> : <FaEye />}
                 </button>
               </div>
-
               {/* Confirm Password Field */}
               <label
                 htmlFor="confirmPassword"
@@ -442,7 +383,6 @@ const ResetPassword = () => {
                   {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
                 </button>
               </div>
-
               {/* Continue Button */}
               <MDBBtn
                 onClick={handleButton}

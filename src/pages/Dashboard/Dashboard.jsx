@@ -2,19 +2,10 @@ import React, { useEffect, useState } from "react";
 import "./dashboard.scss";
 import { CiCreditCard1 } from "react-icons/ci";
 import { GrGroup } from "react-icons/gr";
-import { FaRegArrowAltCircleRight } from "react-icons/fa";
 import { IoArrowForwardCircleOutline } from "react-icons/io5";
 import { Line } from "react-chartjs-2";
 import { Doughnut } from "react-chartjs-2";
-import {
-  MDBBadge,
-  MDBTable,
-  MDBTableHead,
-  MDBTableBody,
-  MDBSpinner,
-  MDBBtn,
-} from "mdb-react-ui-kit";
-import { GoDotFill } from "react-icons/go";
+import { MDBSpinner, MDBBtn } from "mdb-react-ui-kit";
 import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import { authService } from "../../api/services";
 import { transactionService } from "../../api/services";
@@ -110,11 +101,10 @@ const Dashboard = () => {
       },
     ],
   });
-
-  // Pagination state
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-  const [totalPages, setTotalPages] = useState(1);
+  // Pagination state (removed since we don't show table anymore)
+  // const [currentPage, setCurrentPage] = useState(1);
+  // const [pageSize, setPageSize] = useState(10);
+  // const [totalPages, setTotalPages] = useState(1);
 
   // Format month for display
   const formatMonthDisplay = (dateString) => {
@@ -352,8 +342,7 @@ const Dashboard = () => {
       setLoading((prev) => ({ ...prev, stats: false }));
     }
   };
-
-  // Fetch transactions by date range
+  // Fetch transactions by date range (for chart data only)
   const fetchTransactionsByDate = async () => {
     setLoading((prev) => ({ ...prev, transactions: true }));
     try {
@@ -375,18 +364,15 @@ const Dashboard = () => {
       const formattedStartDate = formatDate(dateRange.startDate);
       const formattedEndDate = formatDate(dateRange.endDate);
 
-      console.log("Fetching transactions with date range:", {
+      console.log("Fetching transactions for chart data with date range:", {
         start_date: formattedStartDate,
         end_date: formattedEndDate,
-        page: currentPage,
-        limit: pageSize,
       });
 
       const response = await transactionService.getTransactionsByDate({
         start_date: formattedStartDate,
         end_date: formattedEndDate,
-        page: currentPage,
-        limit: pageSize,
+        // Remove pagination params since we need all data for charts
       });
 
       // Check if response is an array directly or contains a transactions property
@@ -394,23 +380,11 @@ const Dashboard = () => {
         ? response.transactions
         : response.transactions || [];
 
-      // Handle pagination metadata if available
-      if (response.pagination) {
-        setTotalPages(
-          response.pagination.totalPages ||
-            Math.ceil(response.pagination.totalItems / pageSize) ||
-            1
-        );
-      } else if (response.total) {
-        setTotalPages(Math.ceil(response.total / pageSize) || 1);
-      } else {
-        // If no pagination info, estimate from current results
-        setTotalPages(
-          Math.max(1, Math.ceil(transactionsData.length / pageSize))
-        );
-      }
-
-      console.log("Setting transactions to:", transactionsData);
+      console.log(
+        "Setting transactions for chart data:",
+        transactionsData.length,
+        "transactions"
+      );
       setTransactions(transactionsData);
 
       // Update line chart with filtered data
@@ -418,6 +392,32 @@ const Dashboard = () => {
         const lineChartData =
           prepareLineChartDataFromTransactions(transactionsData);
         setLineData(lineChartData);
+      } else {
+        // Reset chart if no data
+        setLineData({
+          labels: [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec",
+          ],
+          datasets: [
+            {
+              label: "Suspicious Transactions (%)",
+              data: Array(12).fill(0),
+              borderColor: "rgba(255, 99, 132, 1)",
+              backgroundColor: "rgba(255, 99, 132, 0.2)",
+            },
+          ],
+        });
       }
     } catch (error) {
       console.error("Error fetching transactions by date:", error);
@@ -426,19 +426,16 @@ const Dashboard = () => {
       setLoading((prev) => ({ ...prev, transactions: false }));
     }
   };
-
-  // Effect to fetch transactions when date range or page changes
+  // Effect to fetch transactions when date range changes (for chart data)
   useEffect(() => {
     fetchTransactionsByDate();
-  }, [dateRange, currentPage, pageSize]);
-
+  }, [dateRange]);
   // Handle date range change
   const handleStartDateChange = (e) => {
     setDateRange((prev) => ({
       ...prev,
       startDate: new Date(e.target.value),
     }));
-    setCurrentPage(1); // Reset to first page on date change
   };
 
   const handleEndDateChange = (e) => {
@@ -446,20 +443,17 @@ const Dashboard = () => {
       ...prev,
       endDate: new Date(e.target.value),
     }));
-    setCurrentPage(1); // Reset to first page on date change
   };
+  // Removed pagination handlers since we don't show table anymore
+  // const handlePageChange = (newPage) => {
+  //   setCurrentPage(newPage);
+  // };
 
-  // Handle pagination
-  const handlePageChange = (newPage) => {
-    setCurrentPage(newPage);
-  };
-
-  // Handle page size change
-  const handlePageSizeChange = (e) => {
-    const newSize = parseInt(e.target.value);
-    setPageSize(newSize);
-    setCurrentPage(1); // Reset to first page when changing page size
-  };
+  // const handlePageSizeChange = (e) => {
+  //   const newSize = parseInt(e.target.value);
+  //   setPageSize(newSize);
+  //   setCurrentPage(1);
+  // };
 
   // Format date for input field
   const formatDateForInput = (date) => {
@@ -527,7 +521,6 @@ const Dashboard = () => {
         </div>
       </div>
       <h3 style={{ color: "black" }}>Dashboard</h3>
-
       {/* Statistic Boxes */}
       <div className="statistic-boxes">
         {/* Box 1 */}
@@ -546,7 +539,6 @@ const Dashboard = () => {
             <span>Total Transaction</span>
           </div>
         </div>
-
         {/* Box 2 */}
         <div className="stat-box">
           <div className="icon-container green">
@@ -563,7 +555,6 @@ const Dashboard = () => {
             <span>Genuine Transactions</span>
           </div>
         </div>
-
         {/* Box 3 */}
         <div className="stat-box">
           <div className="icon-container red">
@@ -578,6 +569,36 @@ const Dashboard = () => {
               )}
             </h2>
             <span>High Risk Transactions</span>
+          </div>
+        </div>{" "}
+      </div>
+
+      {/* Date Range Filter for Charts */}
+      <div className="date-filter-section">
+        <div className="date-range-picker">
+          <h4>Filter Data by Date Range</h4>
+          <div className="date-inputs">
+            <input
+              type="date"
+              value={formatDateForInput(dateRange.startDate)}
+              onChange={handleStartDateChange}
+              className="date-input"
+            />
+            <span className="date-separator">to</span>
+            <input
+              type="date"
+              value={formatDateForInput(dateRange.endDate)}
+              onChange={handleEndDateChange}
+              className="date-input"
+            />
+            <MDBBtn
+              size="sm"
+              onClick={fetchTransactionsByDate}
+              className="refresh-btn"
+              disabled={loading.transactions}
+            >
+              {loading.transactions ? <MDBSpinner size="sm" /> : "Apply Filter"}
+            </MDBBtn>
           </div>
         </div>
       </div>
@@ -612,164 +633,7 @@ const Dashboard = () => {
               data={doughnutData}
               options={doughnutOptions}
             />
-          )}
-        </div>
-      </div>
-
-      {/* Table */}
-      <div className="tablebox">
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <h4>Recent Transaction Details</h4>
-          <div className="date-range-picker">
-            <div className="date-inputs">
-              <input
-                type="date"
-                value={formatDateForInput(dateRange.startDate)}
-                onChange={handleStartDateChange}
-                className="date-input"
-              />
-              <span className="date-separator">to</span>
-              <input
-                type="date"
-                value={formatDateForInput(dateRange.endDate)}
-                onChange={handleEndDateChange}
-                className="date-input"
-              />
-              <MDBBtn
-                size="sm"
-                onClick={fetchTransactionsByDate}
-                className="refresh-btn"
-              >
-                Refresh
-              </MDBBtn>
-            </div>
-          </div>
-        </div>
-
-        <div className="table-container">
-          {loading.transactions ? (
-            <div className="text-center my-4">
-              <MDBSpinner />
-            </div>
-          ) : (
-            <MDBTable align="middle" className="dashboardtable">
-              <MDBTableHead>
-                <tr>
-                  <th scope="col">Transaction ID</th>
-                  <th scope="col">Sender Name</th>
-                  <th scope="col">Mobile Number</th>
-                  <th scope="col">Amount</th>
-                  <th scope="col">Date</th>
-                  <th scope="col">Status</th>
-                </tr>
-              </MDBTableHead>
-              <MDBTableBody>
-                {transactions.length > 0 ? (
-                  transactions.map((transaction) => (
-                    <tr key={transaction.id}>
-                      <td>
-                        <p>{transaction.id || transaction.mtn || "N/A"}</p>
-                      </td>
-                      <td>
-                        <p>{transaction.sender_legal_name || "N/A"}</p>
-                      </td>
-                      <td>
-                        <p>
-                          {transaction.sender_mobile ||
-                            transaction.mobile ||
-                            "N/A"}
-                        </p>
-                      </td>
-                      <td>
-                        <p>{transaction.total_sale || "N/A"}</p>
-                      </td>
-                      <td>
-                        <p>
-                          {transaction.sending_date
-                            ? new Date(
-                                transaction.sending_date
-                              ).toLocaleDateString("en-GB")
-                            : "N/A"}
-                        </p>
-                      </td>
-                      <td>
-                        {transaction.sender_status_detail === "Suspicious" ||
-                        transaction.status?.includes("Suspicious") ? (
-                          <MDBBadge pill className="failbg">
-                            <span>
-                              <GoDotFill className="dot" />
-                            </span>
-                            <span className="fraudtext">Suspicious</span>
-                          </MDBBadge>
-                        ) : (
-                          <MDBBadge pill className="successbg">
-                            <span>
-                              <GoDotFill className="dot" />
-                            </span>
-                            <span className="genuinetext">Genuine</span>
-                          </MDBBadge>
-                        )}
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="6" className="text-center">
-                      No transactions found for this period
-                    </td>
-                  </tr>
-                )}
-              </MDBTableBody>
-            </MDBTable>
-          )}
-
-          {/* Pagination Controls */}
-          {transactions.length > 0 && (
-            <div className="pagination-controls mt-3 d-flex justify-content-between align-items-center">
-              <div className="d-flex align-items-center">
-                <span className="me-2">Rows per page:</span>
-                <select
-                  className="form-select form-select-sm"
-                  value={pageSize}
-                  onChange={handlePageSizeChange}
-                  style={{ width: "70px" }}
-                >
-                  <option value="10">10</option>
-                  <option value="25">25</option>
-                  <option value="50">50</option>
-                  <option value="100">100</option>
-                </select>
-              </div>
-
-              <div className="pagination-buttons">
-                <MDBBtn
-                  size="sm"
-                  color="light"
-                  disabled={currentPage === 1}
-                  onClick={() => handlePageChange(currentPage - 1)}
-                >
-                  Previous
-                </MDBBtn>
-                <span className="mx-2">
-                  Page {currentPage} of {totalPages}
-                </span>
-                <MDBBtn
-                  size="sm"
-                  color="light"
-                  disabled={currentPage === totalPages}
-                  onClick={() => handlePageChange(currentPage + 1)}
-                >
-                  Next
-                </MDBBtn>
-              </div>
-            </div>
-          )}
+          )}{" "}
         </div>
       </div>
     </div>

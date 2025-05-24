@@ -68,7 +68,6 @@ export default function SideBar() {
                 Dashboard
               </MDBListGroupItem>
             </MDBRipple>
-
             {user.role == "admin" && (
               <MDBRipple rippleTag="span">
                 <MDBListGroupItem
@@ -85,7 +84,6 @@ export default function SideBar() {
                 </MDBListGroupItem>
               </MDBRipple>
             )}
-
             <MDBRipple rippleTag="span">
               <MDBListGroupItem
                 action
@@ -102,7 +100,6 @@ export default function SideBar() {
                 Customer Transactions
               </MDBListGroupItem>
             </MDBRipple>
-
             <MDBRipple rippleTag="span">
               <MDBListGroupItem
                 action
@@ -115,8 +112,8 @@ export default function SideBar() {
                 ML Algorithm Insights
               </MDBListGroupItem>
             </MDBRipple>
-
-            <MDBRipple rippleTag="span">
+            {/* commented the algo details page */}
+            {/* <MDBRipple rippleTag="span">
               <MDBListGroupItem
                 action
                 onClick={() => navigate("/app/details")}
@@ -127,8 +124,7 @@ export default function SideBar() {
                 <FaFlag style={{ marginRight: "0.5rem !important" }} />
                 Algorithm Details
               </MDBListGroupItem>
-            </MDBRipple>
-
+            </MDBRipple> */}
             <MDBRipple rippleTag="span">
               <MDBListGroupItem
                 action
@@ -152,7 +148,6 @@ export default function SideBar() {
                 </div>
               </MDBListGroupItem>
             </MDBRipple>
-
             <MDBRipple rippleTag="span">
               <MDBListGroupItem
                 action

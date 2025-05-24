@@ -135,14 +135,12 @@ const authService = {
       throw error;
     }
   },
-
   /**
    * Reset user password with token
    * @param {Object} data - Password reset data
    * @param {string} data.email - User email
    * @param {string} data.code - Verification code
    * @param {string} data.new_password - New password
-   * @param {string} data.old_password - Current password for additional security
    * @param {string} data.token - Reset token (optional, will check localStorage if not provided)
    * @returns {Promise<Object>} Success message
    */

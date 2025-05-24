@@ -204,6 +204,70 @@
     }
   }
 
+  /* Date Filter Section */
+  .date-filter-section {
+    margin-top: 20px;
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+
+    h4 {
+      font-size: 16px;
+      margin-bottom: 15px;
+      color: #333;
+    }
+
+    .date-range-picker {
+      .date-inputs {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        flex-wrap: wrap;
+
+        .date-input {
+          border: 1px solid #ddd;
+          padding: 8px 12px;
+          border-radius: 5px;
+          font-size: 14px;
+          color: #333;
+          background-color: #fff;
+
+          &:focus {
+            outline: none;
+            border-color: #3B8BD0;
+            box-shadow: 0 0 0 2px rgba(59, 139, 208, 0.2);
+          }
+        }
+
+        .date-separator {
+          color: #666;
+          font-size: 14px;
+          font-weight: 500;
+        }
+
+        .refresh-btn {
+          background-color: #3B8BD0;
+          border: none;
+          padding: 8px 16px;
+          border-radius: 5px;
+          color: white;
+          font-size: 14px;
+          transition: background-color 0.3s ease;
+
+          &:hover:not(:disabled) {
+            background-color: #2980b9;
+          }
+
+          &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+          }
+        }
+      }
+    }
+  }
+
   .tablebox {
     margin-top: 20px;
     background: #fff;
