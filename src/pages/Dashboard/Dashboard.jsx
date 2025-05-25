@@ -3,6 +3,7 @@ import "./dashboard.scss";
 import { CiCreditCard1 } from "react-icons/ci";
 import { GrGroup } from "react-icons/gr";
 import { IoArrowForwardCircleOutline } from "react-icons/io5";
+import { FaUserCheck, FaUserTimes } from "react-icons/fa";
 import { Line } from "react-chartjs-2";
 import { Doughnut } from "react-chartjs-2";
 import { MDBSpinner, MDBBtn } from "mdb-react-ui-kit";
@@ -46,13 +47,14 @@ const Dashboard = () => {
     firstName: "",
     lastName: "",
   });
-
   const [dashboardStats, setDashboardStats] = useState({
     totalTransactions: 0,
     totalCustomers: 0,
-    highRiskCustomers: 0,
     genuineTransactions: 0,
-    fraudulentTransactions: 0,
+    genuineCustomers: 0,
+    suspiciousTransactions: 0,
+    suspiciousCustomers: 0,
+    mixedCustomers: 0,
     monthlyFraudStats: [],
   });
 
@@ -312,15 +314,14 @@ const Dashboard = () => {
     try {
       const stats = await transactionService.getDashboardStats();
       console.log("Dashboard stats from API:", stats);
-
       setDashboardStats({
         totalTransactions: stats.total_transactions || 0,
-        totalCustomers:
-          stats.total_customers || stats.genuine_transactions || 0,
-        highRiskCustomers:
-          stats.high_risk_customers || stats.suspicious_transactions || 0,
-        genuineTransactions: stats.genuine_volume || 0,
-        fraudulentTransactions: stats.suspicious_volume || 0,
+        totalCustomers: stats.total_customers || 0,
+        genuineTransactions: stats.genuine_transactions || 0,
+        genuineCustomers: stats.genuine_customers || 0,
+        suspiciousTransactions: stats.suspicious_transactions || 0,
+        suspiciousCustomers: stats.suspicious_customers || 0,
+        mixedCustomers: stats.mixed_customers || 0,
         monthlyFraudStats: stats.monthly_stats || stats.monthlyFraudStats || [],
       });
 
@@ -492,14 +493,10 @@ const Dashboard = () => {
   // Effect to set line chart data
   useEffect(() => {
     if (dashboardStats) {
-      // Only set doughnut chart data here - line chart now updates with date range
-      const genuineCount =
-        dashboardStats.genuineTransactions ||
-        dashboardStats.totalTransactions -
-          dashboardStats.fraudulentTransactions;
+      // Set doughnut chart data using genuine and suspicious transactions
       const doughnutData = prepareDoughnutData(
-        genuineCount,
-        dashboardStats.fraudulentTransactions
+        dashboardStats.genuineTransactions,
+        dashboardStats.suspiciousTransactions
       );
       setDoughnutData(doughnutData);
     }
@@ -520,10 +517,9 @@ const Dashboard = () => {
           />
         </div>
       </div>
-      <h3 style={{ color: "black" }}>Dashboard</h3>
-      {/* Statistic Boxes */}
+      <h3 style={{ color: "black" }}>Dashboard</h3> {/* Statistic Boxes */}
       <div className="statistic-boxes">
-        {/* Box 1 */}
+        {/* Box 1 - Total Transactions */}
         <div className="stat-box">
           <div className="icon-container orange">
             <CiCreditCard1 className="crediticon" />
@@ -536,12 +532,13 @@ const Dashboard = () => {
                 dashboardStats.totalTransactions
               )}
             </h2>
-            <span>Total Transaction</span>
+            <span>Total Transactions</span>
           </div>
         </div>
-        {/* Box 2 */}
+
+        {/* Box 2 - Total Customers */}
         <div className="stat-box">
-          <div className="icon-container green">
+          <div className="icon-container blue">
             <GrGroup className="peopleicon" />
           </div>
           <div className="stat-text">
@@ -552,10 +549,44 @@ const Dashboard = () => {
                 dashboardStats.totalCustomers
               )}
             </h2>
+            <span>Total Customers</span>
+          </div>
+        </div>
+
+        {/* Box 3 - Genuine Transactions */}
+        <div className="stat-box">
+          <div className="icon-container green">
+            <CiCreditCard1 className="crediticon" />
+          </div>
+          <div className="stat-text">
+            <h2>
+              {loading.stats ? (
+                <MDBSpinner size="sm" />
+              ) : (
+                dashboardStats.genuineTransactions
+              )}
+            </h2>
             <span>Genuine Transactions</span>
           </div>
         </div>
-        {/* Box 3 */}
+
+        {/* Box 4 - Genuine Customers */}
+        <div className="stat-box">
+          <div className="icon-container green-light">
+            <FaUserCheck className="usericon" />
+          </div>
+          <div className="stat-text">
+            <h2>
+              {loading.stats ? (
+                <MDBSpinner size="sm" />
+              ) : (
+                dashboardStats.genuineCustomers
+              )}
+            </h2>
+            <span>Genuine Customers</span>
+          </div>
+        </div>
+        {/* Box 5 - Suspicious Transactions */}
         <div className="stat-box">
           <div className="icon-container red">
             <IoArrowForwardCircleOutline className="arrowright" />
@@ -565,14 +596,30 @@ const Dashboard = () => {
               {loading.stats ? (
                 <MDBSpinner size="sm" />
               ) : (
-                dashboardStats.highRiskCustomers
+                dashboardStats.suspiciousTransactions
               )}
             </h2>
-            <span>High Risk Transactions</span>
+            <span>Suspicious Transactions</span>
           </div>
-        </div>{" "}
-      </div>
+        </div>
 
+        {/* Box 6 - Suspicious Customers */}
+        <div className="stat-box">
+          <div className="icon-container red-light">
+            <FaUserTimes className="usericon" />
+          </div>
+          <div className="stat-text">
+            <h2>
+              {loading.stats ? (
+                <MDBSpinner size="sm" />
+              ) : (
+                dashboardStats.suspiciousCustomers
+              )}
+            </h2>
+            <span>Suspicious Customers</span>
+          </div>
+        </div>
+      </div>
       {/* Date Range Filter for Charts */}
       <div className="date-filter-section">
         <div className="date-range-picker">
@@ -602,7 +649,6 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
-
       {/* Fraudulent Transaction Details and Total Transactions */}
       <div className="charts-section">
         {/* Line Chart */}

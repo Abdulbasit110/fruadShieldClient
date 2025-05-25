@@ -35,35 +35,58 @@
   .user-role {
     font-size: 10px;
     color: gray;
-  }
-
-  /* Statistic Boxes */
+  }  /* Statistic Boxes */
   .statistic-boxes {
-    display: flex;
-    gap: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
     margin-top: 20px;
+    
+    // Two-row layout: 3 cards per row on large screens
+    @media (min-width: 1200px) {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+    }
+    
+    // Two cards per row on medium screens
+    @media (min-width: 768px) and (max-width: 1199px) {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+    
+    // Single column on small screens
+    @media (max-width: 767px) {
+      grid-template-columns: 1fr;
+      gap: 15px;
+    }
   }
-
   .stat-box {
     flex: 1;
     display: flex;
     align-items: center;
     background: #fff;
-    border-radius: 10px;
-    padding: 29px 31px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    padding: 24px 28px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    min-height: 100px;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    }
   }
-
   .icon-container {
-    width: 50px;
-    height: 50px;
+    width: 55px;
+    height: 55px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 24px;
     color: white;
-    margin-right: 15px;
+    margin-right: 18px;
+    flex-shrink: 0;
   }
 
   .icon-container.orange {
@@ -75,12 +98,29 @@
       font-size: 2rem;
     }
   }
+  .icon-container.blue {
+    background: #E5F3FF;
+
+    .peopleicon {
+      color: #3B8BD0;
+      font-size: 1.7rem;
+    }
+  }
 
   .icon-container.green {
     background: #CEF4E5;
 
-    .peopleicon {
+    .crediticon {
       color: #09C97F;
+      transform: rotate(-45deg);
+      font-size: 2rem;
+    }
+  }
+  .icon-container.green-light {
+    background: #E8F8F0;
+
+    .usericon {
+      color: #57BE96;
       font-size: 1.7rem;
     }
   }
@@ -94,15 +134,29 @@
     }
   }
 
-  .stat-text h2 {
-    font-size: 23px;
-    color: black;
-    margin: 0;
-  }
+  .icon-container.red-light {
+    background: #FFE8E8;
 
-  .stat-text span {
-    font-size: 14px;
-    color: #717171;
+    .usericon {
+      color: #E57373;
+      font-size: 1.7rem;
+    }
+  }
+  .stat-text {
+    flex: 1;
+    
+    h2 {
+      font-size: 28px;
+      color: #2c3e50;
+      margin: 0 0 4px 0;
+      font-weight: 700;
+    }
+
+    span {
+      font-size: 14px;
+      color: #64748b;
+      font-weight: 500;
+    }
   }
 
   .charts-section {
