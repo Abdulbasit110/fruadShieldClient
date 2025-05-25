@@ -149,7 +149,7 @@ const Notifications = () => {
         </div>
       </div>
       {/* Buttons */}
-      <div className="buttons-container">
+      {/* <div className="buttons-container">
         <button
           className={`action-button ${filter === "Fraudulent" ? "active" : ""}`}
           onClick={() => {
@@ -168,7 +168,7 @@ const Notifications = () => {
         >
           Suspicious
         </button>
-      </div>
+      </div> */}
       {/* Error message */}
       {error && (
         <div className="alert alert-warning" role="alert">
