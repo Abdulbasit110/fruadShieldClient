@@ -5,7 +5,13 @@ import customerTransactionService from "./customerTransactionService";
 import userService from "./userService";
 
 // Export all services
-export { authService, fraudService, transactionService, customerTransactionService, userService };
+export {
+  authService,
+  fraudService,
+  transactionService,
+  customerTransactionService,
+  userService,
+};
 
 // Export default as an object with all services
 export default {

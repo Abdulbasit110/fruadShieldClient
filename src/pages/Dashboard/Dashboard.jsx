@@ -369,11 +369,14 @@ const Dashboard = () => {
       console.log("Fetching transactions for chart data with date range:", {
         start_date: formattedStartDate,
         end_date: formattedEndDate,
-      });      const response = await customerTransactionService.getCustomerTransactions({
-        start_date: formattedStartDate,
-        end_date: formattedEndDate,
-        // Remove pagination params since we need all data for charts
       });
+      const response = await customerTransactionService.getCustomerTransactions(
+        {
+          start_date: formattedStartDate,
+          end_date: formattedEndDate,
+          // Remove pagination params since we need all data for charts
+        }
+      );
 
       // Check if response is an array directly or contains a transactions property
       const transactionsData = Array.isArray(response.transactions)

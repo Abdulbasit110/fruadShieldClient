@@ -93,17 +93,20 @@ const Transactions = () => {
         per_page: pageSize,
       });
 
-      const response = await customerTransactionService.getCustomerTransactionsByDate({
-        start_date: formattedStartDate,
-        end_date: formattedEndDate,
-        page: currentPage,
-        per_page: pageSize,
-      });
+      const response =
+        await customerTransactionService.getCustomerTransactionsByDate({
+          start_date: formattedStartDate,
+          end_date: formattedEndDate,
+          page: currentPage,
+          per_page: pageSize,
+        });
 
       processTransactionResponse(response);
     } catch (error) {
       console.error("Error fetching customer transactions by date:", error);
-      toast.error("Failed to load customer transactions for the selected date range");
+      toast.error(
+        "Failed to load customer transactions for the selected date range"
+      );
       setTransactions([]);
     } finally {
       setLoading((prev) => ({ ...prev, transactions: false }));

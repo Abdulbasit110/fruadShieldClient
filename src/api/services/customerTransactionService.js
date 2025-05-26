@@ -5,7 +5,8 @@ import routes from "../routes";
  * Customer Transaction service for handling live customer transaction API operations
  * This service handles real customer transactions, separate from training data
  */
-const customerTransactionService = {  /**
+const customerTransactionService = {
+  /**
    * Get customer transactions with pagination and filtering
    * @param {Object} params - Query parameters
    * @param {number} params.page - Page number
@@ -63,7 +64,10 @@ const customerTransactionService = {  /**
    */
   createCustomerTransaction: async (transactionData) => {
     try {
-      return await apiClient.post(routes.CUSTOMER_TRANSACTION.CREATE, transactionData);
+      return await apiClient.post(
+        routes.CUSTOMER_TRANSACTION.CREATE,
+        transactionData
+      );
     } catch (error) {
       console.error("Error creating customer transaction:", error);
       throw error;
@@ -139,7 +143,10 @@ const customerTransactionService = {  /**
     try {
       return await apiClient.get(routes.CUSTOMER_TRANSACTION.STATS);
     } catch (error) {
-      console.error("Error fetching customer transaction dashboard statistics:", error);
+      console.error(
+        "Error fetching customer transaction dashboard statistics:",
+        error
+      );
       throw error;
     }
   },
