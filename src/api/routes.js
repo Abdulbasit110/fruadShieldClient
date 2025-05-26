@@ -47,6 +47,18 @@ const TRANSACTION = {
   SENDER_FEATURE: (id) => `/model/features/${id}`,
 };
 
+// Customer Transaction endpoints (live customer data)
+const CUSTOMER_TRANSACTION = {
+  BASE: "/customer-transactions",
+  BY_DATE: "/customer-transactions/by-date",
+  STATS: "/customer-transactions/stats",
+  FLAGGED: "/customer-transactions/flagged",
+  SINGLE: (id) => `/customer-transactions/${id}`,
+  REVIEW: (id) => `/customer-transactions/${id}/review`,
+  FLAG: (id) => `/customer-transactions/${id}/flag`,
+  CREATE: "/customer-transactions/create",
+};
+
 // Fraud detection endpoints
 const FRAUD = {
   DASHBOARD: "/fraud/dashboard",
@@ -62,5 +74,6 @@ export default {
   AUTH,
   USER,
   TRANSACTION,
+  CUSTOMER_TRANSACTION,
   FRAUD,
 };

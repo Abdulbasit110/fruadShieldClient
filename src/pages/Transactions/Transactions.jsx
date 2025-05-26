@@ -16,7 +16,7 @@ import { GoDotFill } from "react-icons/go";
 import { VscSettings } from "react-icons/vsc";
 import Pagination from "../../components/Pagination";
 import Form from "react-bootstrap/Form";
-import { transactionService } from "../../api/services";
+import { customerTransactionService } from "../../api/services";
 import { toast } from "react-toastify";
 
 const Transactions = () => {
@@ -57,12 +57,11 @@ const Transactions = () => {
       date.getSeconds()
     ).padStart(2, "0")}.${String(date.getMilliseconds()).padStart(3, "0")}`;
   };
-
   // Fetch dashboard stats
   const fetchDashboardStats = async () => {
     setLoading((prev) => ({ ...prev, stats: true }));
     try {
-      const stats = await transactionService.getDashboardStats();
+      const stats = await customerTransactionService.getDashboardStats();
       console.log("Dashboard stats from API:", stats);
 
       setDashboardStats({
@@ -79,7 +78,6 @@ const Transactions = () => {
       setLoading((prev) => ({ ...prev, stats: false }));
     }
   };
-
   // Fetch transactions with proper date filtering
   const fetchTransactions = async () => {
     setLoading((prev) => ({ ...prev, transactions: true }));
@@ -88,24 +86,24 @@ const Transactions = () => {
       const formattedStartDate = formatDate(dateRange.startDate);
       const formattedEndDate = formatDate(dateRange.endDate);
 
-      console.log("Fetching transactions with date range:", {
+      console.log("Fetching customer transactions with date range:", {
         start_date: formattedStartDate,
         end_date: formattedEndDate,
         page: currentPage,
-        limit: pageSize,
+        per_page: pageSize,
       });
 
-      const response = await transactionService.getTransactionsByDate({
+      const response = await customerTransactionService.getCustomerTransactionsByDate({
         start_date: formattedStartDate,
         end_date: formattedEndDate,
         page: currentPage,
-        limit: pageSize,
+        per_page: pageSize,
       });
 
       processTransactionResponse(response);
     } catch (error) {
-      console.error("Error fetching transactions by date:", error);
-      toast.error("Failed to load transactions for the selected date range");
+      console.error("Error fetching customer transactions by date:", error);
+      toast.error("Failed to load customer transactions for the selected date range");
       setTransactions([]);
     } finally {
       setLoading((prev) => ({ ...prev, transactions: false }));

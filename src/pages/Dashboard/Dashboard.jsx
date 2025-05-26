@@ -10,6 +10,7 @@ import { MDBSpinner, MDBBtn } from "mdb-react-ui-kit";
 import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import { authService } from "../../api/services";
 import { transactionService } from "../../api/services";
+import { customerTransactionService } from "../../api/services";
 import { fraudService } from "../../api/services";
 import { toast } from "react-toastify";
 
@@ -307,13 +308,13 @@ const Dashboard = () => {
     // Fetch dashboard stats
     fetchDashboardStats();
   }, []);
-
   // Fetch dashboard statistics
   const fetchDashboardStats = async () => {
     setLoading((prev) => ({ ...prev, stats: true }));
     try {
-      const stats = await transactionService.getDashboardStats();
-      console.log("Dashboard stats from API:", stats);
+      // Use customer transaction service for live customer data stats
+      const stats = await customerTransactionService.getDashboardStats();
+      console.log("Customer transaction stats from API:", stats);
       setDashboardStats({
         totalTransactions: stats.total_transactions || 0,
         totalCustomers: stats.total_customers || 0,
@@ -368,9 +369,7 @@ const Dashboard = () => {
       console.log("Fetching transactions for chart data with date range:", {
         start_date: formattedStartDate,
         end_date: formattedEndDate,
-      });
-
-      const response = await transactionService.getTransactionsByDate({
+      });      const response = await customerTransactionService.getCustomerTransactions({
         start_date: formattedStartDate,
         end_date: formattedEndDate,
         // Remove pagination params since we need all data for charts
