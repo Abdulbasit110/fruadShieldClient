@@ -127,9 +127,7 @@ const Notifications = () => {
         </div>
       </div>{" "}
       <div className="insights-header">
-        <h3 style={{ color: "black" }}>
-          Alerts & Notifications - Past 24 Hours
-        </h3>
+        <h3 style={{ color: "black" }}>Alerts & Notifications</h3>
         <div className="insights-actions">
           {notificationCount > 0 && (
             <span className="insights-count">

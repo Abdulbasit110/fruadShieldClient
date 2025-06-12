@@ -16,7 +16,10 @@ import { GoDotFill } from "react-icons/go";
 import { VscSettings } from "react-icons/vsc";
 import Pagination from "../../components/Pagination";
 import Form from "react-bootstrap/Form";
-import { customerTransactionService } from "../../api/services";
+import {
+  customerTransactionService,
+  transactionService,
+} from "../../api/services";
 import { toast } from "react-toastify";
 
 const Transactions = () => {
@@ -61,7 +64,7 @@ const Transactions = () => {
   const fetchDashboardStats = async () => {
     setLoading((prev) => ({ ...prev, stats: true }));
     try {
-      const stats = await customerTransactionService.getDashboardStats();
+      const stats = await transactionService.getDashboardStats();
       console.log("Dashboard stats from API:", stats);
 
       setDashboardStats({
@@ -93,13 +96,12 @@ const Transactions = () => {
         per_page: pageSize,
       });
 
-      const response =
-        await customerTransactionService.getCustomerTransactionsByDate({
-          start_date: formattedStartDate,
-          end_date: formattedEndDate,
-          page: currentPage,
-          per_page: pageSize,
-        });
+      const response = await transactionService.getTransactionsByDate({
+        start_date: formattedStartDate,
+        end_date: formattedEndDate,
+        page: currentPage,
+        per_page: pageSize,
+      });
 
       processTransactionResponse(response);
     } catch (error) {

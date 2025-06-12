@@ -313,7 +313,7 @@ const Dashboard = () => {
     setLoading((prev) => ({ ...prev, stats: true }));
     try {
       // Use customer transaction service for live customer data stats
-      const stats = await customerTransactionService.getDashboardStats();
+      const stats = await transactionService.getDashboardStats();
       console.log("Customer transaction stats from API:", stats);
       setDashboardStats({
         totalTransactions: stats.total_transactions || 0,
@@ -370,13 +370,11 @@ const Dashboard = () => {
         start_date: formattedStartDate,
         end_date: formattedEndDate,
       });
-      const response = await customerTransactionService.getCustomerTransactions(
-        {
-          start_date: formattedStartDate,
-          end_date: formattedEndDate,
-          // Remove pagination params since we need all data for charts
-        }
-      );
+      const response = await transactionService.getTransactionsByDate({
+        start_date: formattedStartDate,
+        end_date: formattedEndDate,
+        // Remove pagination params since we need all data for charts
+      });
 
       // Check if response is an array directly or contains a transactions property
       const transactionsData = Array.isArray(response.transactions)
