@@ -64,11 +64,16 @@ const Login = () => {
   };
 
   return (
-    <MDBContainer className="my-5 loginpage">
-      <MDBCard
-        style={{ width: "60%", margin: "70px auto" }}
-        className="logincard"
-      >
+    <MDBContainer
+      className="loginpage"
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: "100vh",
+      }}
+    >
+      <MDBCard style={{ width: "60%", margin: "auto" }} className="logincard">
         <MDBRow className="g-0">
           <MDBCol md="6">
             <MDBCardImage

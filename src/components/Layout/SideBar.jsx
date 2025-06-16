@@ -135,17 +135,17 @@ export default function SideBar() {
                     : ""
                 }`}
               >
-                <div className="d-flex align-items-center justify-content-between w-100">
-                  <div>
-                    <FaBell style={{ marginRight: "0.5rem !important" }} />
-                    Alerts & Notifications
-                  </div>
-                  {/* {unreadCount > 0 && (
+                {/* <div className="d-flex align-items-center justify-content-between w-100">
+                  <div> */}
+                <FaBell style={{ marginRight: "0.5rem !important" }} />
+                Alerts & Notifications
+                {/* </div> */}
+                {/* {unreadCount > 0 && (
                     <MDBBadge color="danger" pill className="ms-2">
                       {unreadCount}
                     </MDBBadge>
                   )} */}
-                </div>
+                {/* </div> */}
               </MDBListGroupItem>
             </MDBRipple>
             <MDBRipple rippleTag="span">
